@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import Navigation from "../templates/Navigation";
 import MainTemplate from "../templates/MainTemplate";
+import { Provider } from "react-redux";
+import store from "../store";
 
 const MainContainer = styled.div`
   position: relative;
@@ -15,10 +17,12 @@ const Root: React.FC = () => {
   const [whatIsViewed, whatToView] = useState<string>("playground");
 
   return (
-    <MainContainer>
-      <Navigation showPanel={whatToView} />
-      <MainTemplate panel={whatIsViewed} />
-    </MainContainer>
+    <Provider store={store}>
+      <MainContainer>
+        <Navigation panel={whatIsViewed} showPanel={whatToView} />
+        <MainTemplate panel={whatIsViewed} />
+      </MainContainer>
+    </Provider>
   );
 };
 

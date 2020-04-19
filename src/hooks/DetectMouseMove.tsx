@@ -1,26 +1,32 @@
 import React, { useEffect } from "react";
 
-const DetectMouseMove = (
-  setHidden: React.Dispatch<React.SetStateAction<boolean>>
-) => {
-  let timeout = 0;
+let timeout;
 
-  const listener = () => {
-    if (timeout) {
-      clearTimeout(timeout);
-      return;
-    }
-    setHidden(false);
-    timeout = setTimeout(() => {
-      setHidden(true);
-    }, 2500);
+const DetectMouseMove = (
+  setHidden: React.Dispatch<React.SetStateAction<boolean>>,
+  isPlayground: boolean
+) => {
+  let listener = () => {
+    return;
   };
+
+  if (isPlayground) {
+    listener = () => {
+      setHidden(false);
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        setHidden(true);
+      }, 2000);
+      return;
+    };
+  }
 
   useEffect(() => {
     document.addEventListener("mousemove", listener);
-
+    clearTimeout(timeout);
     return () => {
       document.removeEventListener("mousemove", listener);
+      clearTimeout(timeout);
     };
   });
 };

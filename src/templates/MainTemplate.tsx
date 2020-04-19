@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import Playground from "../components/blocks/Playground";
 import Presets from "../components/blocks/Presets";
+import BlockTree from "../components/blocks/BlockTree";
 
 const TemplateContainer = styled.div`
   position: absolute;
@@ -16,11 +17,12 @@ interface MainTemplateProps {
   panel: string;
 }
 
-const MainTemplate: React.FC<MainTemplateProps> = () => {
+const MainTemplate: React.FC<MainTemplateProps> = ({ panel }) => {
   return (
     <TemplateContainer>
       <Playground />
-      <Presets />
+      <Presets active={panel === "presets"} />
+      <BlockTree active={panel === "block-tree"} />
     </TemplateContainer>
   );
 };

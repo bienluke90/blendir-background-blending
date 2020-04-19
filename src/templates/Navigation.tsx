@@ -7,12 +7,19 @@ import UseDetectOutside from "../hooks/UseDetectOutside";
 import DetectMouseMove from "../hooks/DetectMouseMove";
 
 const NavigationContainer = styled.div`
+  display: block;
+  ${(p: NavigationContainerProps) =>
+    p.hidden &&
+    `
+    transform: translateY(-100%);
+    transition: transform 0.5s;
+  `}
   position: absolute;
-  min-height: 63px;
+  min-height: ${theme.nav.height};
   width: 100%;
   top: 0;
   left: 0;
-  padding: 10px 15px 0 15px;
+  padding: 15px 15px 0 15px;
   background-color: ${theme.nav.backgroundColor};
   z-index: 9999;
 `;
@@ -57,6 +64,7 @@ const Logo = styled.div`
   font-size: 3rem;
   text-shadow: 1px 1px 3px ${theme.colors.textInverted};
   padding: 5px 15px 5px 5px;
+  line-height: 3rem;
   @media screen and (min-width: ${theme.widths.tablet}) {
     width: auto;
   }
@@ -84,7 +92,7 @@ const Navicon = styled.div`
   p {
     display: none;
     position: absolute;
-    top: -4px;
+    top: 0;
     left: 6.5px;
     text-shadow: 0 0 0 transparent;
   }
@@ -116,15 +124,20 @@ interface NaviconProps {
 
 interface NavigationProps {
   showPanel: React.Dispatch<React.SetStateAction<string>>;
+  panel: string;
 }
 
-const Navigation: React.FC<NavigationProps> = () => {
+interface NavigationContainerProps {
+  hidden: boolean;
+}
+
+const Navigation: React.FC<NavigationProps> = ({ panel, showPanel }) => {
   const [navOpened, handleOpenNav] = useState(false);
   const [navHidden, handleHideNav] = useState(false);
   const navRef = useRef<HTMLElement>(document.createElement("div")!);
 
   UseDetectOutside(navRef, handleOpenNav);
-  DetectMouseMove(handleHideNav);
+  DetectMouseMove(handleHideNav, panel === "playground");
 
   const handleNav = (close?: boolean) => {
     if (close === true) {
@@ -138,7 +151,15 @@ const Navigation: React.FC<NavigationProps> = () => {
       <Container>
         <MenuContainer ref={navRef}>
           <Logo>
-            <a href="/">Blendir</a>
+            <a
+              href="/"
+              onClick={() => {
+                handleNav(false);
+                showPanel("playground");
+              }}
+            >
+              Blendir
+            </a>
             <Navicon active={navOpened} onClick={() => handleNav()}>
               <span></span>
               <span></span>
@@ -147,18 +168,41 @@ const Navigation: React.FC<NavigationProps> = () => {
             </Navicon>
           </Logo>
           <ButtonsContainer opened={navOpened}>
-            <Button onClick={() => handleNav(false)}>Presets</Button>
-            <Button onClick={() => handleNav(false)} inverted>
-              New preset
+            <Button
+              inverted
+              onClick={() => {
+                handleNav(false);
+                showPanel("playground");
+              }}
+            >
+              Playground
             </Button>
-            <Button onClick={() => handleNav(false)} info>
+            <Button
+              onClick={() => {
+                handleNav(false);
+                showPanel("presets");
+              }}
+            >
+              Presets
+            </Button>
+            <Button
+              onClick={() => {
+                handleNav(false);
+                showPanel("block-tree");
+              }}
+              info
+            >
               Block tree
             </Button>
-            <Button onClick={() => handleNav(false)} info inverted>
+            <Button
+              inverted
+              onClick={() => {
+                handleNav(false);
+                showPanel("see-code");
+              }}
+              info
+            >
               See code
-            </Button>
-            <Button onClick={() => handleNav(false)} danger>
-              Remove preset
             </Button>
           </ButtonsContainer>
         </MenuContainer>

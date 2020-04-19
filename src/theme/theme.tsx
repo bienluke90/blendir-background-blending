@@ -19,6 +19,10 @@ interface themeProperties {
     desktop: string;
   };
   nav: {
+    height: string;
+    backgroundColor: string;
+  };
+  panel: {
     backgroundColor: string;
   };
   borderRadius: string;
@@ -45,7 +49,11 @@ const theme: themeProperties = {
     desktop: "1024px",
   },
   nav: {
+    height: "63px",
     backgroundColor: "rgba(50, 50, 50, 0.75)",
+  },
+  panel: {
+    backgroundColor: "rgba(50, 50, 50, 0.9)",
   },
   borderRadius: "4px",
 };

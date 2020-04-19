@@ -12,7 +12,7 @@ const ButtonStyled = styled.button`
   border-style: solid;
   border-width: 2px;
   font-family: inherit;
-  font-weight: 700;
+  font-weight: 500;
   font-size: inherit;
   cursor: pointer;
 

@@ -3,8 +3,6 @@ import theme from "./theme";
 
 const globalStyle = createGlobalStyle`
 
-  @import url(${"https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;500;900&display=swap"});
-
   *, *:before, *:after {
     margin: 0;
     padding: 0;
