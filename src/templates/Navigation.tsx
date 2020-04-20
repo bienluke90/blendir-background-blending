@@ -188,11 +188,11 @@ const Navigation: React.FC<NavigationProps> = ({ panel, showPanel }) => {
             <Button
               onClick={() => {
                 handleNav(false);
-                showPanel("block-tree");
+                showPanel("blocks");
               }}
               info
             >
-              Block tree
+              Blocks
             </Button>
             <Button
               inverted

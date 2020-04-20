@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 
 const UseDetectOutside: (
   ref: React.MutableRefObject<HTMLElement>,
-  handleDetect: React.Dispatch<React.SetStateAction<boolean>>
+  handleDetect: Function
 ) => void = (ref, handleDetect) => {
   const listener = (e: Event) => {
     if (!ref.current || ref.current.contains(e.target as HTMLDivElement)) {

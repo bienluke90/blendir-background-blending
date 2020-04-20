@@ -41,6 +41,7 @@ const Playground: React.FC<PlaygroundProps> = ({ currentPreset }) => {
       const backgroundBlendMode = b.blendMode || "normal";
       return (
         <BlockBG
+          key={`bGB-${b.id}`}
           style={{
             backgroundImage,
             backgroundRepeat,
@@ -53,7 +54,7 @@ const Playground: React.FC<PlaygroundProps> = ({ currentPreset }) => {
       );
     }
     if ((b.type = "text")) {
-      return <p>{b.text}</p>;
+      return <p key={`tB-${b.id}`}>{b.text}</p>;
     }
     return <div>Block</div>;
   });

@@ -15,14 +15,15 @@ const TemplateContainer = styled.div`
 
 interface MainTemplateProps {
   panel: string;
+  showPanel: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const MainTemplate: React.FC<MainTemplateProps> = ({ panel }) => {
+const MainTemplate: React.FC<MainTemplateProps> = ({ panel, showPanel }) => {
   return (
     <TemplateContainer>
       <Playground />
       <Presets active={panel === "presets"} />
-      <BlockTree active={panel === "block-tree"} />
+      <BlockTree showPanel={showPanel} active={panel === "blocks"} />
     </TemplateContainer>
   );
 };

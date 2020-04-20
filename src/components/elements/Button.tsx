@@ -7,7 +7,7 @@ const ButtonStyled = styled.button`
   display: inline-block;
   border-radius: ${theme.borderRadius};
   background-color: ${theme.colors.text};
-  padding: 4px 10px;
+  padding: 4px 8px;
   margin: 0 10px 10px 0;
   border-style: solid;
   border-width: 2px;

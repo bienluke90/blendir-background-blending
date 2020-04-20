@@ -20,7 +20,7 @@ const Root: React.FC = () => {
     <Provider store={store}>
       <MainContainer>
         <Navigation panel={whatIsViewed} showPanel={whatToView} />
-        <MainTemplate panel={whatIsViewed} />
+        <MainTemplate panel={whatIsViewed} showPanel={whatToView} />
       </MainContainer>
     </Provider>
   );
