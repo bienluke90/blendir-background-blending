@@ -16,11 +16,12 @@ const InputElement = styled.input`
 
 interface InputProps {
   id?: string;
-  value?: string;
+  value?: any;
+  type?: string;
 }
 
-const Input: React.FC<InputProps> = ({ children, id, value }) => (
-  <InputElement value={value} id={id}>
+const Input: React.FC<InputProps> = ({ children, id, value, type }) => (
+  <InputElement type={type} value={value} id={id}>
     {children}
   </InputElement>
 );

@@ -1,11 +1,7 @@
 type Background = {
   id: number;
   type: string;
-  color?: string;
-  fontSize?: string;
-  fontWeight?: string;
-  fontStyle?: string;
-  backgroundImage?: string;
+  backgroundImage: string;
   backgroundRepeat?: string;
   backgroundPosition?: string;
   backgroundSize?: string;
@@ -18,6 +14,14 @@ type Block = {
   blendMode?: string;
   backgrounds?: Background[];
   text?: string;
+  color?: string;
+  fontSize?: string;
+  fontWeight?: string;
+  fontStyle?: string;
+  top?: string;
+  left?: string;
+  transform?: string;
+  textAlign?: string;
 };
 
 type Preset = {
@@ -27,6 +31,5 @@ type Preset = {
 
 type Gradient = {
   id: number;
-  active: boolean;
   backgroundImage: string;
 };

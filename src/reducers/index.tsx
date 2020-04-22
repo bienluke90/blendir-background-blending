@@ -1,5 +1,3 @@
-import { cover } from "polished";
-
 const preset1 = {
   id: 1,
   blocks: [
@@ -46,11 +44,14 @@ const preset1 = {
       id: 3,
       type: "text",
       text: "Welcome to ABC Solutions",
-      color: "rgba(0, 0, 0, 0.8)",
+      color: "rgba(0, 40, 0, 0.66)",
       fontSize: "10rem",
       fontWeight: "bold",
       fontStyle: "normal",
-      transform: "translate(50%, 50%)",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      textAlign: "center",
     },
   ],
 };
@@ -58,55 +59,46 @@ const preset1 = {
 const gradients = [
   {
     id: 1,
-    active: true,
     backgroundImage:
       "linear-gradient(0deg, rgba(185,0,0,0.5) 0%, rgba(0,0,0,1) 50%, rgba(0,212,255,0.5) 100%)",
   },
   {
     id: 2,
-    active: false,
     backgroundImage:
       "linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(0,0,0,0.6) 50%, rgba(252,176,69,1) 100%)",
   },
   {
     id: 3,
-    active: false,
     backgroundImage:
       "linear-gradient(90deg, rgba(180,58,58,1) 0%, rgba(0,0,0,1) 50%, rgba(245,255,0,1) 100%)",
   },
   {
     id: 4,
-    active: false,
     backgroundImage:
       "linear-gradient(45deg, rgba(0,0,0,1) 12%, rgba(180,58,58,1) 29%, rgba(85,0,255,1) 100%)",
   },
   {
     id: 5,
-    active: false,
     backgroundImage:
       "linear-gradient(135deg, rgba(0,0,0,0.5) 12%, rgba(58,179,180,1) 50%, rgba(85,0,255,1) 86%)",
   },
   {
     id: 6,
-    active: false,
     backgroundImage:
       "linear-gradient(0deg, rgba(207,210,83,1) 0%, rgba(236,255,0,1) 34%, rgba(195,152,43,1) 67%, rgba(21,0,180,1) 86%)",
   },
   {
     id: 7,
-    active: false,
     backgroundImage:
       "linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(0,164,255,1) 47%, rgba(195,152,43,1) 50%, rgba(180,124,0,1) 100%)",
   },
   {
     id: 8,
-    active: false,
     backgroundImage:
       "radial-gradient(circle, rgba(130,242,255,1) 22%, rgba(70,252,128,0.6) 75%, rgba(2,159,142,0.4) 80%)",
   },
   {
     id: 9,
-    active: false,
     backgroundImage:
       "linear-gradient(45deg, rgba(0,0,0,1) 0%, rgba(245,255,0,0.5) 50%, rgba(136,0,255,1) 100%)",
   },

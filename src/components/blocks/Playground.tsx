@@ -1,10 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import theme from "../../theme/theme";
 import { connect } from "react-redux";
 
 const PlaygroundContainer = styled.div`
-  position: absolute;
+  position: relative;
   width: 100%;
   height: 100vh;
   z-index: 99;
@@ -54,9 +53,26 @@ const Playground: React.FC<PlaygroundProps> = ({ currentPreset }) => {
       );
     }
     if ((b.type = "text")) {
-      return <p key={`tB-${b.id}`}>{b.text}</p>;
+      return (
+        <p
+          style={{
+            position: "absolute",
+            fontSize: b.fontSize,
+            fontWeight: b.fontWeight as "normal" | "bold",
+            fontStyle: b.fontStyle,
+            color: b.color,
+            top: b.top,
+            left: b.left,
+            transform: b.transform,
+            textAlign: b.textAlign as "center" | "left" | "right",
+          }}
+          key={`tB-${b.id}`}
+        >
+          {b.text}
+        </p>
+      );
     }
-    return <div>Block</div>;
+    return null;
   });
   return <PlaygroundContainer>{blocks}</PlaygroundContainer>;
 };

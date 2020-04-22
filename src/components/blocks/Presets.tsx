@@ -6,7 +6,7 @@ interface PresetsProps {
 }
 
 const Presets: React.FC<PresetsProps> = () => {
-  return <Container>Presets</Container>;
+  return <Container></Container>;
 };
 
 export default Presets;
