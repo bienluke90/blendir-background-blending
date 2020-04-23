@@ -9,7 +9,8 @@ import {
   Column,
   BackgroundOptions,
 } from "./BlockTree";
-import { SketchPicker } from "react-color";
+import { Panel as ColorPickerPanel } from "rc-color-picker";
+import "rc-color-picker/assets/index.css";
 
 const Header = styled.h2`
   font-size: 2rem;
@@ -32,7 +33,6 @@ const GradientMiniature = styled.div`
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  border-radius: ${theme.borderRadius};
   font-size: 2rem;
   height: 45px;
   width: 50px;
@@ -47,20 +47,13 @@ const GradientMiniature = styled.div`
   }
 `;
 
-const GradientPreview = styled.div`
-  margin: 10px auto;
-  max-width: calc(100% - 50px);
-  height: 160px;
-  border-radius: ${theme.borderRadius};
-`;
-
 const GradientLine = styled.div`
   position: relative;
-  width: calc(100% - 50px);
-  margin: 0 auto;
+  width: calc(100% - 20px);
+  margin: 15px auto 10px auto;
   border-top: 2px solid #555;
   border-bottom: 2px solid #555;
-  height: 40px;
+  height: 30px;
   background-color: #fff;
   border-radius: ${theme.borderRadius};
   cursor: pointer;
@@ -93,8 +86,8 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
   gradients,
   blockId: bl,
 }) => {
-  let gradientParts = b
-    .backgroundImage!.replace(/radial-gradient\(|linear-gradient\(|\)$/g, "")
+  let gradientParts = gradients[b.backgroundImage].backgroundImage
+    .replace(/radial-gradient\(|linear-gradient\(|\)$/g, "")
     .split(/,(?![^()]*(?:\([^()]*\))?\))/);
   gradientParts.shift();
   return (
@@ -119,6 +112,7 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
             <Gradients>
               {gradients.map((g) => (
                 <GradientMiniature
+                  active={g.id === (b.backgroundImage as number) + 1}
                   key={`grad-${b.id}-${g.id}`}
                   style={{ backgroundImage: g.backgroundImage }}
                 ></GradientMiniature>
@@ -126,44 +120,86 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
               <GradientMiniature>+</GradientMiniature>
             </Gradients>
             <BackgroundOptions>
-              <GradientPreview
+              <GradientLine
                 style={{
-                  backgroundImage: b.backgroundImage,
+                  backgroundImage: `linear-gradient(90deg, ${gradientParts.join(
+                    ","
+                  )})`,
                 }}
-              ></GradientPreview>
+              >
+                {gradientParts.map((p, i) => {
+                  const [color] = p.match(/rgba\([\d\b\\.,]+\)/);
+                  const [percent] = p.match(/\d+%/);
+                  return (
+                    <GradientPoint
+                      key={`grad-point-${b.id}-${bl}-${i}`}
+                      style={{
+                        left: `calc(${percent} - 7px)`,
+                        backgroundColor: color,
+                      }}
+                    ></GradientPoint>
+                  );
+                })}
+              </GradientLine>
+
+              <br />
+              <ColorPickerPanel enableAlpha mode="RGB" />
+              <br />
             </BackgroundOptions>
           </BackgroundOptions>
         </Column>
         <Column>
           <BackgroundOptions>
-            <p>Gradient settings:</p>
-            <GradientLine
-              style={{
-                backgroundImage: `linear-gradient(90deg, ${gradientParts.join(
-                  ","
-                )})`,
-              }}
-            >
-              {gradientParts.map((p, i) => {
-                const [color] = p.match(/rgba\([\d\b\\.,]+\)/);
-                const [percent] = p.match(/\d+%/);
-                return (
-                  <GradientPoint
-                    key={`grad-point-${b.id}-${bl}-${i}`}
-                    style={{
-                      left: `calc(${percent} - 7px)`,
-                      backgroundColor: color,
-                    }}
-                  ></GradientPoint>
-                );
-              })}
-            </GradientLine>
-          </BackgroundOptions>
-          <BackgroundOptions>
-            <br />
-            <SketchPicker />
-            <br />
-            <p></p>
+            <p>Options:</p>
+            <p>
+              <small>Position: </small>
+              <Button confirm>{`X: ${
+                b.backgroundPosition?.split(" ")[0]
+              }`}</Button>
+              <Button confirm>{`Y: ${
+                b.backgroundPosition?.split(" ")[1]
+              }`}</Button>
+            </p>
+            <p>
+              <small>Size: </small>
+              <Button confirm={b.backgroundSize === "cover"}>Cover</Button>
+              <Button confirm={b.backgroundSize === "contain"}>Contain</Button>
+              {b.backgroundSize !== "contain" &&
+                b.backgroundSize !== "cover" && (
+                  <Button
+                    confirm={
+                      b.backgroundSize !== "contain" &&
+                      b.backgroundSize !== "cover"
+                    }
+                  >
+                    X: {b.backgroundSize?.split(" ")[0]}
+                  </Button>
+                )}
+              {b.backgroundSize !== "contain" &&
+                b.backgroundSize !== "cover" && (
+                  <Button
+                    confirm={
+                      b.backgroundSize !== "contain" &&
+                      b.backgroundSize !== "cover"
+                    }
+                  >
+                    Y: {b.backgroundSize?.split(" ")[1]}
+                  </Button>
+                )}
+            </p>
+            <p>
+              <small>Repeat: </small>
+              <Button confirm={b.backgroundRepeat === "no-repeat"}>
+                No repeat
+              </Button>
+              <Button confirm={b.backgroundRepeat === "repeat"}>Repeat</Button>
+              <Button confirm={b.backgroundRepeat === "repeat-x"}>
+                Repeat X
+              </Button>
+              <Button confirm={b.backgroundRepeat === "repeat-y"}>
+                Repeat Y
+              </Button>
+            </p>
           </BackgroundOptions>
         </Column>
       </Columns>

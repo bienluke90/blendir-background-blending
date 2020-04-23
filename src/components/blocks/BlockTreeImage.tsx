@@ -37,8 +37,8 @@ const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
   blockId: bl,
   currentPreset,
 }) => {
-  let gradientParts = b
-    .backgroundImage!.replace(/radial-gradient\(|linear-gradient\(|\)$/g, "")
+  let gradientParts = (b.backgroundImage as string)
+    .replace(/radial-gradient\(|linear-gradient\(|\)$/g, "")
     .split(/,(?![^()]*(?:\([^()]*\))?\))/);
   gradientParts.shift();
   return (
@@ -67,8 +67,8 @@ const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
                 <Input
                   type="text"
                   id={`bg-${currentPreset.id}-${bl}-${b.id}`}
-                  value={b
-                    .backgroundImage!.replace('url("', "")
+                  value={(b.backgroundImage as string)
+                    .replace('url("', "")
                     .replace('")', "")}
                 />
               </label>
@@ -78,7 +78,7 @@ const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
           </BackgroundOptions>
           <BackgroundOptions>
             <ImagePreview
-              style={{ backgroundImage: b.backgroundImage }}
+              style={{ backgroundImage: b.backgroundImage as string }}
             ></ImagePreview>
           </BackgroundOptions>
         </Column>

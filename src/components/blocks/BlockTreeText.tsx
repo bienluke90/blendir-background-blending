@@ -4,7 +4,8 @@ import Button from "../elements/Button";
 import { TopButtons, BackgroundBlock, Columns, Column } from "./BlockTree";
 import theme from "../../theme/theme";
 import Input from "../elements/Input";
-import { SketchPicker } from "react-color";
+import { Panel as ColorPickerPanel } from "rc-color-picker";
+import "rc-color-picker/assets/index.css";
 
 const TreeBlock = styled.div`
   width: calc(100% - 20px);
@@ -28,7 +29,7 @@ const TreeBlockContent = styled.div`
   color: ${theme.colors.textInverted};
 `;
 
-const Highlighted = styled.p`
+const Highlighted = styled.div`
   margin: 10px 0;
   font-size: 2.4rem;
   font-weight: 500;
@@ -73,10 +74,10 @@ const BlockTreeText: React.FC<BlockTreeTextProps> = ({
               >
                 {content}
               </Highlighted>
-              <p>
+              <div>
                 <small>Text color:</small>
-                <SketchPicker />
-              </p>
+                <ColorPickerPanel enableAlpha />
+              </div>
             </Column>
             <Column>
               <p>Options:</p>

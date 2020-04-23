@@ -17,13 +17,22 @@ const BlockBG = styled.div`
 
 interface PlaygroundProps {
   currentPreset: Preset;
+  gradients: Gradient[];
 }
 
-const Playground: React.FC<PlaygroundProps> = ({ currentPreset }) => {
+const Playground: React.FC<PlaygroundProps> = ({
+  currentPreset,
+  gradients,
+}) => {
   const blocks = currentPreset.blocks.map((b) => {
     if (b.type === "background") {
       const backgroundImage = (b.backgrounds as Background[])
-        .map((b) => b.backgroundImage)
+        .map((b) => {
+          if (typeof b.backgroundImage === "string") {
+            return b.backgroundImage;
+          }
+          return gradients[b.backgroundImage].backgroundImage;
+        })
         .join(",");
       const backgroundRepeat = (b.backgrounds as Background[])
         .map((b) => b.backgroundRepeat)
@@ -78,9 +87,10 @@ const Playground: React.FC<PlaygroundProps> = ({ currentPreset }) => {
 };
 
 const mapStateToProps = (state) => {
-  const { currentPreset } = state;
+  const { currentPreset, gradients } = state;
   return {
     currentPreset,
+    gradients,
   };
 };
 

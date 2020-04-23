@@ -1,7 +1,7 @@
 type Background = {
   id: number;
   type: string;
-  backgroundImage: string;
+  backgroundImage: string | number;
   backgroundRepeat?: string;
   backgroundPosition?: string;
   backgroundSize?: string;

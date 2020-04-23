@@ -34,14 +34,15 @@ const globalStyle = createGlobalStyle`
     cursor: pointer;
   }
 
-  .sketch-picker {
-    width: calc(100% - 50px) !important;
-    margin: 0 auto;
-    > div:first-child {
-      height: 140px !important;
-      padding: 0 !important;
-    }
-  }
+ .rc-color-picker-panel  {
+   margin-top: -15px;
+   width: 100%;
+   .rc-color-picker-panel-board {
+     & > div {
+       width: 100%;
+     }
+   }
+ }
 
   small {
     margin: 0 10px 10px 0;
