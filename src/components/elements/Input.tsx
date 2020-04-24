@@ -3,6 +3,11 @@ import styled from "styled-components";
 import theme from "../../theme/theme";
 
 const InputElement = styled.input`
+  ${(p: InputProps) =>
+    p.hidden &&
+    `
+    visibility: hidden;
+  `}
   padding: 5px;
   margin: 10px;
   background-color: #fff;
@@ -18,10 +23,28 @@ interface InputProps {
   id?: string;
   value?: any;
   type?: string;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  accept?: string;
+  hidden?: boolean;
 }
 
-const Input: React.FC<InputProps> = ({ children, id, value, type }) => (
-  <InputElement type={type} value={value} id={id}>
+const Input: React.FC<InputProps> = ({
+  children,
+  id,
+  value,
+  type,
+  onChange,
+  accept,
+  hidden,
+}) => (
+  <InputElement
+    accept={accept}
+    onChange={onChange}
+    type={type}
+    value={value}
+    id={id}
+    hidden={hidden}
+  >
     {children}
   </InputElement>
 );

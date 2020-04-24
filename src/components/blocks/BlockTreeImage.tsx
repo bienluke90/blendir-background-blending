@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import Button from "../elements/Button";
 import theme from "../../theme/theme";
@@ -10,6 +10,13 @@ import {
   BackgroundOptions,
 } from "./BlockTree";
 import Input from "../elements/Input";
+import { connect } from "react-redux";
+import {
+  changeBackgroundType as changeBackgroundTypeAction,
+  changeBackgroundImage as changeBackgroundImageAction,
+  changeBackgroundOption as changeBackgroundOptionAction,
+} from "../../actions";
+import { handleBgPositionChange } from "../../utils";
 
 const Header = styled.h2`
   font-size: 2rem;
@@ -30,17 +37,48 @@ interface BlockTreeImageProps {
   background: Background;
   blockId: number;
   currentPreset: Preset;
+  changeBackgroundType: (idBlock: number, idBG: number, toType: string) => void;
+  changeBackgroundImage: (
+    idBlock: number,
+    idBG: number,
+    toImage: string
+  ) => void;
+  changeBackgroundOption: (
+    idBlock: number,
+    idBG: number,
+    value: string,
+    type: string
+  ) => void;
 }
 
 const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
   background: b,
   blockId: bl,
   currentPreset,
+  changeBackgroundType,
+  changeBackgroundImage,
+  changeBackgroundOption,
 }) => {
+  const [bgImage, handleBgImageChange] = useState(
+    (b.backgroundImage as string).replace('url("', "").replace('")', "")
+  );
+
+  const handleBgImageUploadEvent = (e) => {
+    const imgUrl = URL.createObjectURL(e.target.files[0]);
+    changeBackgroundImage(bl, b.id, imgUrl);
+    handleBgImageChange(imgUrl);
+  };
+
+  const focusUploadImage = () => {
+    const uploadInput = document.getElementById(`${bl}-${b.id}-upload-input`);
+    uploadInput?.click();
+  };
+
   let gradientParts = (b.backgroundImage as string)
     .replace(/radial-gradient\(|linear-gradient\(|\)$/g, "")
     .split(/,(?![^()]*(?:\([^()]*\))?\))/);
   gradientParts.shift();
+
   return (
     <BackgroundBlock>
       <BackgroundBlockHeader>
@@ -57,7 +95,12 @@ const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
           <BackgroundOptions>
             <p>
               <Button confirm>Image</Button>
-              <Button>Gradient</Button>:
+              <Button
+                onClick={() => changeBackgroundType(bl, b.id, "gradient")}
+              >
+                Gradient
+              </Button>
+              :
             </p>
           </BackgroundOptions>
           <BackgroundOptions>
@@ -67,13 +110,22 @@ const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
                 <Input
                   type="text"
                   id={`bg-${currentPreset.id}-${bl}-${b.id}`}
-                  value={(b.backgroundImage as string)
-                    .replace('url("', "")
-                    .replace('")', "")}
+                  onChange={(e) => {
+                    changeBackgroundImage(bl, b.id, e.target.value);
+                    handleBgImageChange(e.target.value);
+                  }}
+                  value={bgImage}
                 />
               </label>
-              {"or "}
-              <Button>Upload</Button>
+              <span>or upload: </span>
+              <Button onClick={focusUploadImage}>Upload Image</Button>
+              <Input
+                id={`${bl}-${b.id}-upload-input`}
+                hidden
+                accept="image/*"
+                type="file"
+                onChange={handleBgImageUploadEvent}
+              />
             </p>
           </BackgroundOptions>
           <BackgroundOptions>
@@ -87,17 +139,55 @@ const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
             <p>Options:</p>
             <p>
               <small>Position: </small>
-              <Button confirm>{`X: ${
-                b.backgroundPosition?.split(" ")[0]
-              }`}</Button>
-              <Button confirm>{`Y: ${
-                b.backgroundPosition?.split(" ")[1]
-              }`}</Button>
+              <Button
+                onClick={() => {
+                  const newPos = handleBgPositionChange(
+                    0,
+                    b.backgroundPosition!
+                  );
+                  changeBackgroundOption(
+                    bl,
+                    b.id,
+                    newPos,
+                    "backgroundPosition"
+                  );
+                }}
+                confirm
+              >{`X: ${b.backgroundPosition?.split(" ")[0]}`}</Button>
+              <Button
+                onClick={() => {
+                  const newPos = handleBgPositionChange(
+                    1,
+                    b.backgroundPosition!
+                  );
+                  changeBackgroundOption(
+                    bl,
+                    b.id,
+                    newPos,
+                    "backgroundPosition"
+                  );
+                }}
+                confirm
+              >{`Y: ${b.backgroundPosition?.split(" ")[1]}`}</Button>
             </p>
             <p>
               <small>Size: </small>{" "}
-              <Button confirm={b.backgroundSize === "cover"}>Cover</Button>
-              <Button confirm={b.backgroundSize === "contain"}>Contain</Button>
+              <Button
+                onClick={() =>
+                  changeBackgroundOption(bl, b.id, "cover", "backgroundSize")
+                }
+                confirm={b.backgroundSize === "cover"}
+              >
+                Cover
+              </Button>
+              <Button
+                onClick={() =>
+                  changeBackgroundOption(bl, b.id, "contain", "backgroundSize")
+                }
+                confirm={b.backgroundSize === "contain"}
+              >
+                Contain
+              </Button>
               {b.backgroundSize !== "contain" &&
                 b.backgroundSize !== "cover" && (
                   <Button
@@ -123,14 +213,51 @@ const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
             </p>
             <p>
               <small>Repeat: </small>
-              <Button confirm={b.backgroundRepeat === "no-repeat"}>
+              <Button
+                onClick={() =>
+                  changeBackgroundOption(
+                    bl,
+                    b.id,
+                    "no-repeat",
+                    "backgroundRepeat"
+                  )
+                }
+                confirm={b.backgroundRepeat === "no-repeat"}
+              >
                 No repeat
               </Button>
-              <Button confirm={b.backgroundRepeat === "repeat"}>Repeat</Button>
-              <Button confirm={b.backgroundRepeat === "repeat-x"}>
+              <Button
+                onClick={() =>
+                  changeBackgroundOption(bl, b.id, "repeat", "backgroundRepeat")
+                }
+                confirm={b.backgroundRepeat === "repeat"}
+              >
+                Repeat
+              </Button>
+              <Button
+                onClick={() =>
+                  changeBackgroundOption(
+                    bl,
+                    b.id,
+                    "repeat-x",
+                    "backgroundRepeat"
+                  )
+                }
+                confirm={b.backgroundRepeat === "repeat-x"}
+              >
                 Repeat X
               </Button>
-              <Button confirm={b.backgroundRepeat === "repeat-y"}>
+              <Button
+                onClick={() =>
+                  changeBackgroundOption(
+                    bl,
+                    b.id,
+                    "repeat-y",
+                    "backgroundRepeat"
+                  )
+                }
+                confirm={b.backgroundRepeat === "repeat-y"}
+              >
                 Repeat Y
               </Button>
             </p>
@@ -141,4 +268,13 @@ const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
   );
 };
 
-export default BlockTreeImage;
+const mapDispatchToProps = (dispatch) => ({
+  changeBackgroundType: (idBlock, idBG, toType) =>
+    dispatch(changeBackgroundTypeAction(idBlock, idBG, toType)),
+  changeBackgroundImage: (idBlock, idBG, toImage) =>
+    dispatch(changeBackgroundImageAction(idBlock, idBG, toImage)),
+  changeBackgroundOption: (idBlock, idBG, value, type) =>
+    dispatch(changeBackgroundOptionAction(idBlock, idBG, value, type)),
+});
+
+export default connect(null, mapDispatchToProps)(BlockTreeImage);

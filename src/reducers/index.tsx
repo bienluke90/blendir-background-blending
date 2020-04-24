@@ -1,4 +1,11 @@
-import { CHANGE_BACKGROUND_TYPE } from "./../actions/index";
+import {
+  CHANGE_BACKGROUND_TYPE,
+  CHANGE_BACKGROUND_IMAGE,
+  CHANGE_BACKGROUND_OPTION,
+  CHANGE_GRADIENT,
+  CHANGE_GRADIENT_TYPE,
+  CHANGE_GRADIENT_DIRECTION,
+} from "./../actions/index";
 
 const gradients = [
   {
@@ -68,7 +75,7 @@ const preset1 = {
           id: 1,
           type: "image",
           backgroundImage: 'url("https://svgsilh.com/svg/1327960.svg")',
-          backgroundSize: "80% 80%",
+          backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center center",
         },
@@ -153,7 +160,7 @@ const rootReducer = (
                   bg.type = action.payload.toType;
                   bg.backgroundImage = "";
                   bg.backgroundRepeat = "no-repeat";
-                  bg.backgroundSize = "contain";
+                  bg.backgroundSize = "cover";
                   bg.backgroundPosition = "50% 50%";
                 }
                 if (
@@ -173,6 +180,106 @@ const rootReducer = (
             return block;
           }),
         },
+      };
+    case CHANGE_BACKGROUND_IMAGE:
+      return {
+        ...state,
+        currentPreset: {
+          ...state.currentPreset,
+          blocks: state.currentPreset.blocks.map((b) => {
+            const block = b;
+            if (block.id === action.payload.idBlock) {
+              block.backgrounds!.map((b) => {
+                const bg = b;
+                if (bg.id === action.payload.idBG) {
+                  bg.backgroundImage = `url('${action.payload.toImage}')`;
+                }
+                return bg;
+              });
+            }
+            return block;
+          }),
+        },
+      };
+    case CHANGE_GRADIENT:
+      return {
+        ...state,
+        currentPreset: {
+          ...state.currentPreset,
+          blocks: state.currentPreset.blocks.map((b) => {
+            const block = b;
+            if (block.id === action.payload.idBlock) {
+              block.backgrounds!.map((b) => {
+                const bg = b;
+                if (bg.id === action.payload.idBG) {
+                  bg.backgroundImage = action.payload.value;
+                }
+                return bg;
+              });
+            }
+            return block;
+          }),
+        },
+      };
+    case CHANGE_BACKGROUND_OPTION:
+      return {
+        ...state,
+        currentPreset: {
+          ...state.currentPreset,
+          blocks: state.currentPreset.blocks.map((b) => {
+            const block = b;
+            if (block.id === action.payload.idBlock) {
+              block.backgrounds!.map((b) => {
+                const bg = b;
+                if (bg.id === action.payload.idBG) {
+                  bg[action.payload.type] = action.payload.value;
+                }
+                return bg;
+              });
+            }
+            return block;
+          }),
+        },
+      };
+    case CHANGE_GRADIENT_TYPE:
+      return {
+        ...state,
+        gradients: state.gradients.map((g) => {
+          let grad = g;
+          if (
+            grad.id === action.payload.grad + 1 &&
+            action.payload.type === "linear-gradient"
+          ) {
+            grad.backgroundImage = grad.backgroundImage.replace(
+              /radial-gradient\(\s?circle\s?/,
+              `${action.payload.type}(0deg`
+            );
+          }
+          if (
+            grad.id === action.payload.grad + 1 &&
+            action.payload.type === "radial-gradient"
+          ) {
+            grad.backgroundImage = grad.backgroundImage.replace(
+              /linear-gradient\(\s?\d+deg\s?/,
+              `${action.payload.type}(circle`
+            );
+          }
+          return grad;
+        }),
+      };
+    case CHANGE_GRADIENT_DIRECTION:
+      return {
+        ...state,
+        gradients: state.gradients.map((g) => {
+          let grad = g;
+          if (grad.id === action.payload.grad + 1) {
+            grad.backgroundImage = grad.backgroundImage.replace(
+              /linear-gradient\(\s?\d+\s?/,
+              `linear-gradient(${action.payload.direction}`
+            );
+          }
+          return grad;
+        }),
       };
     default:
       return state;

@@ -35,7 +35,6 @@ const globalStyle = createGlobalStyle`
   }
 
  .rc-color-picker-panel  {
-   margin-top: -15px;
    width: 100%;
    .rc-color-picker-panel-board {
      & > div {
