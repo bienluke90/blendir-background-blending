@@ -8,6 +8,12 @@ type Background = {
   backgroundColor?: string;
 };
 
+type GradientPart = {
+  id: number;
+  color: string;
+  position: number;
+};
+
 type Block = {
   id: number;
   type: string;

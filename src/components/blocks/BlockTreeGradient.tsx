@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import Button from "../elements/Button";
 import theme from "../../theme/theme";
+import alpha from "../../assets/images/alpha.jpg";
+import { opacify } from "polished";
 import { connect } from "react-redux";
 import {
   changeBackgroundType as changeBackgroundTypeAction,
@@ -9,6 +11,8 @@ import {
   changeGradient as changeGradientAction,
   changeGradientType as changeGradientTypeAction,
   changeGradientDirection as changeGradientDirectionAction,
+  addGradient as addGradientAction,
+  updateGradient as updateGradientAction,
 } from "../../actions";
 import {
   BackgroundBlock,
@@ -21,6 +25,7 @@ import { Panel as ColorPickerPanel } from "rc-color-picker";
 import "rc-color-picker/assets/index.css";
 import { handleBgPositionChange } from "../../utils";
 import Input from "../elements/Input";
+import GradientPoint from "./BlockTreeGradientPoint";
 
 const Header = styled.h2`
   font-size: 2rem;
@@ -63,20 +68,18 @@ const GradientLine = styled.div`
   margin: 15px auto 10px auto;
   border: 2px solid #555;
   height: 35px;
-  background-color: #fff;
+  background-image: url(${alpha});
+  background-repeat: repeat;
   cursor: pointer;
   z-index: 999;
 `;
 
-const GradientPoint = styled.div`
+const GradientLineOverlay = styled.div`
   position: absolute;
-  top: -10%;
-  border-radius: ${theme.borderRadius};
-  border: 4px solid #555;
-  width: 14px;
-  height: 120%;
-  cursor: ew-resize;
+  width: 100%;
+  height: 100%;
   z-index: 9999;
+  user-select: none;
 `;
 
 interface GradientMiniatureProps {
@@ -98,6 +101,8 @@ interface BlockTreeGradientProps {
   changeGradient: (idBlock: number, idBG: number, value: number) => void;
   changeGradientType: (grad: number, type: string) => void;
   changeGradientDirection: (grad: number, direction: number) => void;
+  addGradient: () => void;
+  updateGradient: (idGrad: number, value: string) => void;
 }
 
 const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
@@ -109,17 +114,23 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
   changeGradient,
   changeGradientType,
   changeGradientDirection,
+  addGradient,
+  updateGradient,
   currentPreset,
 }) => {
-  let gradientParts = gradients[b.backgroundImage].backgroundImage
+  let theGrad = gradients[b.backgroundImage].backgroundImage;
+
+  let initialParts = theGrad
     .replace(/radial-gradient\(|linear-gradient\(|\)$/g, "")
     .split(/,(?![^()]*(?:\([^()]*\))?\))/);
-  gradientParts.shift();
+  initialParts.shift();
+  initialParts = initialParts.map((p, i) => ({
+    id: i,
+    color: p.match(/rgba\([\d\b\\.,]+\)/)[0],
+    position: p.match(/\d+%/)[0].replace("%", ""),
+  }));
 
-  const gradientType = gradients[b.backgroundImage].backgroundImage.replace(
-    /\(.*/,
-    ""
-  );
+  const gradientType = theGrad.replace(/\(.*/, "");
 
   const [gradientDeg, gradientDegChange] = useState(0);
 
@@ -128,13 +139,77 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
     changeGradientDirection(b.backgroundImage as number, e.target.value);
   };
 
+  const handlePointPosition = (pointId, lineId) => {
+    const thePoint = document.getElementById(pointId),
+      theLine = document.getElementById(lineId)!,
+      pointNr = +pointId.split("-")[0];
+
+    let down = false,
+      rangeLeft,
+      lineWidth;
+
+    const glueGradient = (parts, deg) => {
+      const calc = `${parts
+        .sort((a, b) => {
+          return a.position > b.position;
+        })
+        .map((p) => `${p.color} ${p.position}%`)
+        .join(",")}`;
+
+      if (gradientType === "linear-gradient") {
+        return `linear-gradient(${deg}deg, ${calc})`;
+      }
+      if (gradientType === "radial-gradient") {
+        return `radial-gradient(circle, ${calc})`;
+      }
+    };
+
+    const updatePoint = (e) => {
+      if (down && e.pageX >= rangeLeft && e.pageX <= rangeLeft + lineWidth) {
+        initialParts = initialParts.map((p) => {
+          if (p.id !== pointNr) {
+            return p;
+          }
+          return {
+            ...p,
+            position: Math.round(((e.pageX - rangeLeft) * 100) / lineWidth),
+          };
+        });
+        console.log(Math.round(((e.pageX - rangeLeft) * 100) / lineWidth));
+        updateGradient(
+          +b.backgroundImage + 1,
+          glueGradient(initialParts, gradientDeg) as string
+        );
+      }
+    };
+
+    thePoint!.addEventListener("mousedown", function (e) {
+      rangeLeft = theLine.getBoundingClientRect().left;
+      lineWidth = theLine.getBoundingClientRect().width;
+      down = true;
+      return false;
+    });
+
+    document.addEventListener("mousemove", function (e) {
+      updatePoint(e);
+    });
+
+    document.addEventListener("mouseup", function (e) {
+      initialParts.map((p, i) => {
+        p.id = i;
+        return p;
+      });
+      down = false;
+    });
+  };
+
   return (
     <BackgroundBlock>
       <BackgroundBlockHeader>
         <Header>Background</Header>
         <div>
           <Button>&#8648;</Button>
-          <Button> &#8650;</Button>
+          <Button>&#8650;</Button>
           <Button danger>&#x2716;</Button>
         </div>
       </BackgroundBlockHeader>
@@ -165,29 +240,42 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
                   }}
                 ></GradientMiniature>
               ))}
-              <GradientMiniature>+</GradientMiniature>
-            </Gradients>
-            <BackgroundOptions>
-              <GradientLine
-                style={{
-                  backgroundImage: `linear-gradient(90deg, ${gradientParts.join(
-                    ","
-                  )})`,
+              <GradientMiniature
+                onClick={() => {
+                  addGradient();
+                  changeGradient(bl, b.id, gradients[gradients.length - 1].id);
                 }}
               >
-                {gradientParts.map((p, i) => {
-                  const [color] = p.match(/rgba\([\d\b\\.,]+\)/);
-                  const [percent] = p.match(/\d+%/);
-                  return (
-                    <GradientPoint
-                      key={`grad-point-${b.id}-${bl}-${i}`}
-                      style={{
-                        left: `calc(${percent} - 7px)`,
-                        backgroundColor: color,
-                      }}
-                    ></GradientPoint>
-                  );
-                })}
+                +
+              </GradientMiniature>
+            </Gradients>
+            <BackgroundOptions>
+              <GradientLine>
+                <GradientLineOverlay
+                  id={`grad-line-${bl}-${b.id}-${b.backgroundImage}`}
+                  style={{
+                    backgroundImage: `linear-gradient(90deg, ${initialParts!
+                      .map((p) => `${p.color} ${p.position}%`)
+                      .join(",")})`,
+                  }}
+                >
+                  {initialParts!.map((p, i) => {
+                    return (
+                      <GradientPoint
+                        id={`${p.id}-grad-point-${b.id}-${bl}-${i}-${b.backgroundImage}`}
+                        key={`grad-point-${b.id}-${bl}-${i}-${b.backgroundImage}`}
+                        color={p.color}
+                        position={p.position}
+                        modify={() =>
+                          handlePointPosition(
+                            `${p.id}-grad-point-${b.id}-${bl}-${i}-${b.backgroundImage}`,
+                            `grad-line-${bl}-${b.id}-${b.backgroundImage}`
+                          )
+                        }
+                      ></GradientPoint>
+                    );
+                  })}
+                </GradientLineOverlay>
               </GradientLine>
 
               <br />
@@ -377,6 +465,9 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(changeGradientTypeAction(grad, type)),
   changeGradientDirection: (grad, type) =>
     dispatch(changeGradientDirectionAction(grad, type)),
+  updateGradient: (idGrad, value) =>
+    dispatch(updateGradientAction(idGrad, value)),
+  addGradient: () => dispatch(addGradientAction()),
 });
 
 export default connect(null, mapDispatchToProps)(BlockTreeGradient);

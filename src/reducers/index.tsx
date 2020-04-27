@@ -5,6 +5,8 @@ import {
   CHANGE_GRADIENT,
   CHANGE_GRADIENT_TYPE,
   CHANGE_GRADIENT_DIRECTION,
+  ADD_GRADIENT,
+  UPDATE_GRADIENT,
 } from "./../actions/index";
 
 const gradients = [
@@ -202,24 +204,60 @@ const rootReducer = (
         },
       };
     case CHANGE_GRADIENT:
+      let blocks = state.currentPreset.blocks.slice(0);
       return {
         ...state,
         currentPreset: {
           ...state.currentPreset,
-          blocks: state.currentPreset.blocks.map((b) => {
-            const block = b;
-            if (block.id === action.payload.idBlock) {
-              block.backgrounds!.map((b) => {
-                const bg = b;
-                if (bg.id === action.payload.idBG) {
-                  bg.backgroundImage = action.payload.value;
-                }
-                return bg;
-              });
-            }
-            return block;
-          }),
+          blocks: [
+            ...blocks.map((b) => {
+              if (b.id !== action.payload.idBlock) {
+                return b;
+              }
+              let bl = { ...b };
+              let bgs = bl.backgrounds!.slice(0);
+              bl.backgrounds = [
+                ...bgs.map((b) => {
+                  if (b.id !== action.payload.idBG) {
+                    return b;
+                  }
+                  return { ...b, backgroundImage: action.payload.value };
+                }),
+              ];
+              return bl;
+            }),
+          ],
         },
+      };
+    case ADD_GRADIENT:
+      return {
+        ...state,
+        gradients: [
+          ...state.gradients,
+          {
+            id:
+              state.gradients.reduce((a, c) => {
+                return a > c.id ? c.id + 1 : a + 1;
+              }, 0) + 1,
+            backgroundImage:
+              "linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(255,255,255,1) 100%)",
+          },
+        ],
+      };
+    case UPDATE_GRADIENT:
+      return {
+        ...state,
+        gradients: [
+          ...state.gradients.map((g) => {
+            if (g.id !== action.payload.idGrad) {
+              return g;
+            }
+            return {
+              ...g,
+              backgroundImage: action.payload.value,
+            };
+          }),
+        ],
       };
     case CHANGE_BACKGROUND_OPTION:
       return {

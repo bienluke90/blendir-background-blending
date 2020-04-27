@@ -1,6 +1,8 @@
 export const CHANGE_BACKGROUND_TYPE = "CHANGE_BACKGROUND_TYPE";
 export const CHANGE_BACKGROUND_IMAGE = "CHANGE_BACKGROUND_IMAGE";
 export const CHANGE_BACKGROUND_OPTION = "CHANGE_BACKGROUND_OPTION";
+export const ADD_GRADIENT = "ADD_GRADIENT";
+export const UPDATE_GRADIENT = "UPDATE_GRADIENT";
 export const CHANGE_GRADIENT = "CHANGE_GRADIENT";
 export const CHANGE_GRADIENT_TYPE = "CHANGE_GRADIENT_TYPE";
 export const CHANGE_GRADIENT_DIRECTION = "CHANGE_GRADIENT_DIRECTION";
@@ -70,6 +72,22 @@ export const changeGradientDirection = (grad, direction) => {
     payload: {
       grad,
       direction,
+    },
+  };
+};
+
+export const addGradient = () => {
+  return {
+    type: ADD_GRADIENT,
+  };
+};
+
+export const updateGradient = (idGrad, value) => {
+  return {
+    type: UPDATE_GRADIENT,
+    payload: {
+      idGrad,
+      value,
     },
   };
 };
