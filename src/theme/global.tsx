@@ -41,6 +41,9 @@ const globalStyle = createGlobalStyle`
        width: 100%;
      }
    }
+   input {
+     min-width: 50px;
+   }
  }
 
   small {

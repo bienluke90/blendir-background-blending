@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-import Button from "../elements/Button";
 import theme from "../../theme/theme";
 import alpha from "../../assets/images/alpha.jpg";
-import { opacify } from "polished";
+import { rgba } from "polished";
 import { connect } from "react-redux";
 import {
   changeBackgroundType as changeBackgroundTypeAction,
@@ -24,8 +23,9 @@ import {
 import { Panel as ColorPickerPanel } from "rc-color-picker";
 import "rc-color-picker/assets/index.css";
 import { handleBgPositionChange } from "../../utils";
-import Input from "../elements/Input";
+import Button from "../elements/Button";
 import GradientPoint from "./BlockTreeGradientPoint";
+import Input from "../elements/Input";
 
 const Header = styled.h2`
   font-size: 2rem;
@@ -74,13 +74,17 @@ const GradientLine = styled.div`
   z-index: 999;
 `;
 
-const GradientLineOverlay = styled.div`
+const GradientLineOverlay = styled.div<GradientLineOverlayProps>`
   position: absolute;
   width: 100%;
   height: 100%;
   z-index: 9999;
   user-select: none;
 `;
+
+interface GradientLineOverlayProps {
+  ref: any;
+}
 
 interface GradientMiniatureProps {
   active?: boolean;
@@ -118,55 +122,65 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
   updateGradient,
   currentPreset,
 }) => {
-  let theGrad = gradients[b.backgroundImage].backgroundImage;
+  const getGrad = () => {
+    return gradients[b.backgroundImage].backgroundImage;
+  };
 
-  let initialParts = theGrad
-    .replace(/radial-gradient\(|linear-gradient\(|\)$/g, "")
-    .split(/,(?![^()]*(?:\([^()]*\))?\))/);
-  initialParts.shift();
-  initialParts = initialParts.map((p, i) => ({
-    id: i,
-    color: p.match(/rgba\([\d\b\\.,]+\)/)[0],
-    position: p.match(/\d+%/)[0].replace("%", ""),
-  }));
-
-  const gradientType = theGrad.replace(/\(.*/, "");
+  const getParts = () => {
+    let parts = getGrad()
+      .replace(/radial-gradient\(|linear-gradient\(|\)$/g, "")
+      .split(/,(?![^()]*(?:\([^()]*\))?\))/);
+    parts.shift();
+    parts = parts.map((p, i) => ({
+      id: i,
+      color: p.match(/rgba\([\d\b\\.,]+\)/)[0],
+      position: +p.match(/\d+%/)[0].replace("%", ""),
+    }));
+    return parts;
+  };
+  const getType = () => {
+    return getGrad().replace(/\(.*/, "");
+  };
 
   const [gradientDeg, gradientDegChange] = useState(0);
+  const [activePoint, changeActivePoint] = useState<number | null>(null);
+  const [activeColor, changeActiveColor] = useState("#ffffff");
+  const refLine = useRef<HTMLElement>(document.createElement("div"));
 
   const handleGradientDegChange = (e) => {
     gradientDegChange(e.target.value);
     changeGradientDirection(b.backgroundImage as number, e.target.value);
   };
 
-  const handlePointPosition = (pointId, lineId) => {
-    const thePoint = document.getElementById(pointId),
-      theLine = document.getElementById(lineId)!,
-      pointNr = +pointId.split("-")[0];
+  const glueGradient = (parts, deg = 0) => {
+    const calc = `${parts
+      .sort((a, b) => {
+        return a.position > b.position;
+      })
+      .map((p) => `${p.color} ${p.position}%`)
+      .join(",")}`;
 
-    let down = false,
-      rangeLeft,
-      lineWidth;
+    if (getType() === "linear-gradient") {
+      return `linear-gradient(${deg}deg, ${calc})`;
+    }
+    if (getType() === "radial-gradient") {
+      return `radial-gradient(circle, ${calc})`;
+    }
+  };
 
-    const glueGradient = (parts, deg) => {
-      const calc = `${parts
-        .sort((a, b) => {
-          return a.position > b.position;
-        })
-        .map((p) => `${p.color} ${p.position}%`)
-        .join(",")}`;
+  const handlePointPosition = (e) => {
+    const thePoint = document.getElementById(e.target.getAttribute("id")),
+      theLine = refLine.current,
+      pointNr = +e.target.getAttribute("id").split("-")[0];
 
-      if (gradientType === "linear-gradient") {
-        return `linear-gradient(${deg}deg, ${calc})`;
-      }
-      if (gradientType === "radial-gradient") {
-        return `radial-gradient(circle, ${calc})`;
-      }
-    };
+    let rangeLeft = theLine.getBoundingClientRect().left,
+      lineWidth = theLine.getBoundingClientRect().width;
 
-    const updatePoint = (e) => {
-      if (down && e.pageX >= rangeLeft && e.pageX <= rangeLeft + lineWidth) {
-        initialParts = initialParts.map((p) => {
+    console.log(1);
+
+    const updatePointPos = (e) => {
+      if (e.pageX >= rangeLeft && e.pageX <= rangeLeft + lineWidth) {
+        let parts = getParts().map((p) => {
           if (p.id !== pointNr) {
             return p;
           }
@@ -175,32 +189,41 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
             position: Math.round(((e.pageX - rangeLeft) * 100) / lineWidth),
           };
         });
-        console.log(Math.round(((e.pageX - rangeLeft) * 100) / lineWidth));
         updateGradient(
           +b.backgroundImage + 1,
-          glueGradient(initialParts, gradientDeg) as string
+          glueGradient(parts, gradientDeg) as string
         );
       }
     };
 
-    thePoint!.addEventListener("mousedown", function (e) {
-      rangeLeft = theLine.getBoundingClientRect().left;
-      lineWidth = theLine.getBoundingClientRect().width;
-      down = true;
-      return false;
-    });
+    const handleMouseMove = (e) => {
+      updatePointPos(e);
+    };
 
-    document.addEventListener("mousemove", function (e) {
-      updatePoint(e);
-    });
+    document.addEventListener("mousemove", handleMouseMove);
 
     document.addEventListener("mouseup", function (e) {
-      initialParts.map((p, i) => {
-        p.id = i;
-        return p;
-      });
-      down = false;
+      document.removeEventListener("mousemove", handleMouseMove);
     });
+  };
+
+  const handlePointColor = (colors) => {
+    if (activePoint === null) {
+      return;
+    }
+    let parts = getParts().map((p) => {
+      if (p.id !== activePoint) {
+        return p;
+      }
+      return {
+        ...p,
+        color: rgba(colors.color, colors.alpha / 100),
+      };
+    });
+    updateGradient(
+      +b.backgroundImage + 1,
+      glueGradient(parts, gradientDeg) as string
+    );
   };
 
   return (
@@ -253,25 +276,22 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
               <GradientLine>
                 <GradientLineOverlay
                   id={`grad-line-${bl}-${b.id}-${b.backgroundImage}`}
+                  ref={refLine}
                   style={{
-                    backgroundImage: `linear-gradient(90deg, ${initialParts!
+                    backgroundImage: `linear-gradient(90deg, ${getParts()
                       .map((p) => `${p.color} ${p.position}%`)
                       .join(",")})`,
                   }}
                 >
-                  {initialParts!.map((p, i) => {
+                  {getParts().map((p, i) => {
                     return (
                       <GradientPoint
                         id={`${p.id}-grad-point-${b.id}-${bl}-${i}-${b.backgroundImage}`}
-                        key={`grad-point-${b.id}-${bl}-${i}-${b.backgroundImage}`}
+                        lineId={`grad-line-${bl}-${b.id}-${b.backgroundImage}`}
+                        key={`grad-point-${b.id}-${bl}-${p.id}-${b.backgroundImage}`}
                         color={p.color}
                         position={p.position}
-                        modify={() =>
-                          handlePointPosition(
-                            `${p.id}-grad-point-${b.id}-${bl}-${i}-${b.backgroundImage}`,
-                            `grad-line-${bl}-${b.id}-${b.backgroundImage}`
-                          )
-                        }
+                        onMouseDown={handlePointPosition}
                       ></GradientPoint>
                     );
                   })}
@@ -279,7 +299,13 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
               </GradientLine>
 
               <br />
-              <ColorPickerPanel enableAlpha mode="RGB" />
+              <ColorPickerPanel
+                id={`color-picker-${bl}-${b.id}`}
+                enableAlpha
+                defaultColor={activeColor}
+                mode="RGB"
+                onChange={handlePointColor}
+              />
               <br />
             </BackgroundOptions>
           </BackgroundOptions>
@@ -421,7 +447,7 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
                   );
                   gradientDegChange(0);
                 }}
-                confirm={gradientType === "linear-gradient"}
+                confirm={getType() === "linear-gradient"}
               >
                 Linear
               </Button>
@@ -432,12 +458,12 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
                     "radial-gradient"
                   )
                 }
-                confirm={gradientType === "radial-gradient"}
+                confirm={getType() === "radial-gradient"}
               >
                 Radial
               </Button>
             </p>
-            {gradientType === "linear-gradient" && (
+            {getType() === "linear-gradient" && (
               <p>
                 <small>Direction (deg): </small>
                 <Input
@@ -465,9 +491,17 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(changeGradientTypeAction(grad, type)),
   changeGradientDirection: (grad, type) =>
     dispatch(changeGradientDirectionAction(grad, type)),
+  addGradient: () => dispatch(addGradientAction()),
   updateGradient: (idGrad, value) =>
     dispatch(updateGradientAction(idGrad, value)),
-  addGradient: () => dispatch(addGradientAction()),
 });
 
-export default connect(null, mapDispatchToProps)(BlockTreeGradient);
+const mapStateToProps = (state) => {
+  const { currentPreset, gradients } = state;
+  return {
+    currentPreset,
+    gradients,
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(BlockTreeGradient);

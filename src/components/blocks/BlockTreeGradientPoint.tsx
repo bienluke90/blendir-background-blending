@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import { opacify } from "polished";
 import theme from "../../theme/theme";
@@ -18,21 +18,22 @@ const GradientPointElement = styled.div`
 
 interface GradientPointProps {
   id: string;
+  lineId: string;
   color: string;
   position: number;
-  modify: () => void;
+  onMouseDown: (Event: any) => void;
 }
 
 const GradientPoint: React.FC<GradientPointProps> = ({
   id,
   color,
   position,
-  modify,
+  onMouseDown,
 }) => {
-  useEffect(modify, []);
   return (
     <GradientPointElement
       id={id}
+      onMouseDown={onMouseDown}
       style={{
         left: `calc(${position}% - 5px)`,
         backgroundColor: opacify(1, color),

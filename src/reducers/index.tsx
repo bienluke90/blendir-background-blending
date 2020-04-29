@@ -245,15 +245,16 @@ const rootReducer = (
         ],
       };
     case UPDATE_GRADIENT:
+      const gradients = state.gradients.slice(0);
       return {
         ...state,
         gradients: [
-          ...state.gradients.map((g) => {
+          ...gradients.map((g) => {
             if (g.id !== action.payload.idGrad) {
               return g;
             }
             return {
-              ...g,
+              id: g.id,
               backgroundImage: action.payload.value,
             };
           }),
@@ -306,17 +307,20 @@ const rootReducer = (
         }),
       };
     case CHANGE_GRADIENT_DIRECTION:
+      const withDirection = state.gradients.slice(0);
       return {
         ...state,
-        gradients: state.gradients.map((g) => {
-          let grad = g;
-          if (grad.id === action.payload.grad + 1) {
-            grad.backgroundImage = grad.backgroundImage.replace(
+        gradients: withDirection.map((g) => {
+          if (g.id !== action.payload.grad + 1) {
+            return g;
+          }
+          return {
+            id: g.id,
+            backgroundImage: g.backgroundImage.replace(
               /linear-gradient\(\s?\d+\s?/,
               `linear-gradient(${action.payload.direction}`
-            );
-          }
-          return grad;
+            ),
+          };
         }),
       };
     default:

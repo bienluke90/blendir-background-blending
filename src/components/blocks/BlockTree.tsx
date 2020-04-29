@@ -138,7 +138,6 @@ const BlockTree: React.FC<BlockTreeProps> = ({
                 key={`bgi-${bl}-${b.id}`}
                 blockId={bl.id}
                 background={b}
-                currentPreset={currentPreset}
               />
             );
           }
@@ -148,7 +147,6 @@ const BlockTree: React.FC<BlockTreeProps> = ({
                 key={`bgg-${bl}-${b.id}`}
                 blockId={bl.id}
                 background={b}
-                currentPreset={currentPreset}
                 gradients={gradients}
               />
             );

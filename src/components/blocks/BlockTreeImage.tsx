@@ -277,4 +277,11 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(changeBackgroundOptionAction(idBlock, idBG, value, type)),
 });
 
-export default connect(null, mapDispatchToProps)(BlockTreeImage);
+const mapStateToProps = (state) => {
+  const { currentPreset } = state;
+  return {
+    currentPreset,
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(BlockTreeImage);
