@@ -142,9 +142,9 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
     return getGrad().replace(/\(.*/, "");
   };
 
-  const [gradientDeg, gradientDegChange] = useState(0);
-  const [activePoint, changeActivePoint] = useState<number | null>(null);
-  const [activeColor, changeActiveColor] = useState("#ffffff");
+  const [gradientDeg, gradientDegChange] = useState<number>(0);
+  const [activePoint, changeActivePoint] = useState<number>(0);
+  const [activeColor, changeActiveColor] = useState<string>("#ffffff");
   const refLine = useRef<HTMLElement>(document.createElement("div"));
 
   const handleGradientDegChange = (e) => {
@@ -153,12 +153,13 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
   };
 
   const glueGradient = (parts, deg = 0) => {
-    const calc = `${parts
-      .sort((a, b) => {
-        return a.position > b.position;
-      })
-      .map((p) => `${p.color} ${p.position}%`)
-      .join(",")}`;
+    const copy = parts.slice(0);
+
+    let sorted = copy.sort((a, b) => {
+      return a.position > b.position;
+    });
+
+    const calc = `${sorted.map((p) => `${p.color} ${p.position}%`).join(",")}`;
 
     if (getType() === "linear-gradient") {
       return `linear-gradient(${deg}deg, ${calc})`;
@@ -169,30 +170,49 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
   };
 
   const handlePointPosition = (e) => {
-    const thePoint = document.getElementById(e.target.getAttribute("id")),
-      theLine = refLine.current,
+    const theLine = refLine.current,
       pointNr = +e.target.getAttribute("id").split("-")[0];
 
     let rangeLeft = theLine.getBoundingClientRect().left,
       lineWidth = theLine.getBoundingClientRect().width;
 
-    console.log(1);
+    changeActivePoint(pointNr);
 
     const updatePointPos = (e) => {
       if (e.pageX >= rangeLeft && e.pageX <= rangeLeft + lineWidth) {
-        let parts = getParts().map((p) => {
+        let moveTo, isLeft;
+        let parts = getParts().map((p, i) => {
           if (p.id !== pointNr) {
             return p;
           }
+          isLeft =
+            Math.round(((e.pageX - rangeLeft) * 100) / lineWidth) -
+              p.position >=
+            0
+              ? false
+              : true;
           return {
             ...p,
             position: Math.round(((e.pageX - rangeLeft) * 100) / lineWidth),
           };
         });
+        parts.sort((a, b) => {
+          if (a.position > b.position && !isLeft) {
+            moveTo = b.id;
+          }
+          if (a.position > b.position && isLeft) {
+            moveTo = a.id;
+          }
+          return a.position > b.position;
+        });
         updateGradient(
           +b.backgroundImage + 1,
           glueGradient(parts, gradientDeg) as string
         );
+
+        console.log(parts);
+
+        changeActivePoint(moveTo >= 0 ? moveTo : pointNr);
       }
     };
 
@@ -211,6 +231,7 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
     if (activePoint === null) {
       return;
     }
+    changeActiveColor(rgba(colors.color, colors.alpha / 100));
     let parts = getParts().map((p) => {
       if (p.id !== activePoint) {
         return p;
@@ -220,6 +241,7 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
         color: rgba(colors.color, colors.alpha / 100),
       };
     });
+
     updateGradient(
       +b.backgroundImage + 1,
       glueGradient(parts, gradientDeg) as string
@@ -260,6 +282,7 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
                         .replace(/linear-gradient\(\s?/, "")
                         .replace(/deg.*/, "")
                     );
+                    changeActivePoint(0);
                   }}
                 ></GradientMiniature>
               ))}
@@ -267,6 +290,7 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
                 onClick={() => {
                   addGradient();
                   changeGradient(bl, b.id, gradients[gradients.length - 1].id);
+                  changeActivePoint(0);
                 }}
               >
                 +
@@ -292,6 +316,7 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
                         color={p.color}
                         position={p.position}
                         onMouseDown={handlePointPosition}
+                        activePoint={p.id === activePoint ? true : false}
                       ></GradientPoint>
                     );
                   })}

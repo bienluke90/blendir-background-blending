@@ -3,7 +3,12 @@ import styled from "styled-components";
 import { opacify } from "polished";
 import theme from "../../theme/theme";
 
-const GradientPointElement = styled.div`
+const GradientPointElement = styled.div<GradientPointElementProps>`
+  ${(p: GradientPointElementProps) =>
+    p.activePoint &&
+    `
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #f00 !important;
+  `}
   position: absolute;
   top: -10%;
   border-radius: ${theme.borderRadius};
@@ -16,12 +21,17 @@ const GradientPointElement = styled.div`
   user-select: none;
 `;
 
+interface GradientPointElementProps {
+  activePoint: boolean;
+}
+
 interface GradientPointProps {
   id: string;
   lineId: string;
   color: string;
   position: number;
   onMouseDown: (Event: any) => void;
+  activePoint: boolean;
 }
 
 const GradientPoint: React.FC<GradientPointProps> = ({
@@ -29,11 +39,13 @@ const GradientPoint: React.FC<GradientPointProps> = ({
   color,
   position,
   onMouseDown,
+  activePoint,
 }) => {
   return (
     <GradientPointElement
       id={id}
       onMouseDown={onMouseDown}
+      activePoint={activePoint}
       style={{
         left: `calc(${position}% - 5px)`,
         backgroundColor: opacify(1, color),

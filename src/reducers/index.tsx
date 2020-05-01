@@ -77,7 +77,7 @@ const preset1 = {
           id: 1,
           type: "image",
           backgroundImage: 'url("https://svgsilh.com/svg/1327960.svg")',
-          backgroundSize: "cover",
+          backgroundSize: "contain",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center center",
         },
