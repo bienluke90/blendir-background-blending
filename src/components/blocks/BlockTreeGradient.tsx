@@ -1,8 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useReducer } from "react";
 import styled from "styled-components";
 import theme from "../../theme/theme";
 import alpha from "../../assets/images/alpha.jpg";
-import { rgba } from "polished";
+import {
+  rgba,
+  parseToRgb,
+  opacify,
+  transparentize,
+  backgroundImages,
+} from "polished";
 import { connect } from "react-redux";
 import {
   changeBackgroundType as changeBackgroundTypeAction,
@@ -12,6 +18,7 @@ import {
   changeGradientDirection as changeGradientDirectionAction,
   addGradient as addGradientAction,
   updateGradient as updateGradientAction,
+  deleteBackground as deleteBackgroundAction,
 } from "../../actions";
 import {
   BackgroundBlock,
@@ -64,21 +71,21 @@ const GradientMiniature = styled.div`
 
 const GradientLine = styled.div`
   position: relative;
-  width: calc(100% - 20px);
-  margin: 15px auto 10px auto;
+  width: calc(100% - 10px);
+  margin: 30px auto 15px auto;
   border: 2px solid #555;
   height: 35px;
   background-image: url(${alpha});
   background-repeat: repeat;
   cursor: pointer;
-  z-index: 999;
+  z-index: 990;
 `;
 
 const GradientLineOverlay = styled.div<GradientLineOverlayProps>`
   position: absolute;
   width: 100%;
   height: 100%;
-  z-index: 9999;
+  z-index: 999;
   user-select: none;
 `;
 
@@ -107,6 +114,7 @@ interface BlockTreeGradientProps {
   changeGradientDirection: (grad: number, direction: number) => void;
   addGradient: () => void;
   updateGradient: (idGrad: number, value: string) => void;
+  deleteBackground: (idBlock: number, idBG: number) => void;
 }
 
 const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
@@ -120,7 +128,7 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
   changeGradientDirection,
   addGradient,
   updateGradient,
-  currentPreset,
+  deleteBackground,
 }) => {
   const getGrad = () => {
     return gradients[b.backgroundImage].backgroundImage;
@@ -145,6 +153,7 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
   const [gradientDeg, gradientDegChange] = useState<number>(0);
   const [activePoint, changeActivePoint] = useState<number>(0);
   const [activeColor, changeActiveColor] = useState<string>("#ffffff");
+  const [activeAlpha, changeActiveAlpha] = useState<number>(100);
   const refLine = useRef<HTMLElement>(document.createElement("div"));
 
   const handleGradientDegChange = (e) => {
@@ -153,13 +162,7 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
   };
 
   const glueGradient = (parts, deg = 0) => {
-    const copy = parts.slice(0);
-
-    let sorted = copy.sort((a, b) => {
-      return a.position > b.position;
-    });
-
-    const calc = `${sorted.map((p) => `${p.color} ${p.position}%`).join(",")}`;
+    const calc = `${parts.map((p) => `${p.color} ${p.position}%`).join(",")}`;
 
     if (getType() === "linear-gradient") {
       return `linear-gradient(${deg}deg, ${calc})`;
@@ -177,6 +180,12 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
       lineWidth = theLine.getBoundingClientRect().width;
 
     changeActivePoint(pointNr);
+    changeActiveColor(getParts()[pointNr].color);
+    changeActiveAlpha(
+      +getParts()
+        [pointNr].color.replace(/rgba\(\s?\d+\s?,\s?\d+\s?,\s?\d+\s?,/, "")
+        .replace(/\)/, "") * 100
+    );
 
     const updatePointPos = (e) => {
       if (e.pageX >= rangeLeft && e.pageX <= rangeLeft + lineWidth) {
@@ -196,7 +205,7 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
             position: Math.round(((e.pageX - rangeLeft) * 100) / lineWidth),
           };
         });
-        parts.sort((a, b) => {
+        parts = parts.sort((a, b) => {
           if (a.position > b.position && !isLeft) {
             moveTo = b.id;
           }
@@ -206,11 +215,9 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
           return a.position > b.position;
         });
         updateGradient(
-          +b.backgroundImage + 1,
+          +b.backgroundImage,
           glueGradient(parts, gradientDeg) as string
         );
-
-        console.log(parts);
 
         changeActivePoint(moveTo >= 0 ? moveTo : pointNr);
       }
@@ -232,6 +239,7 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
       return;
     }
     changeActiveColor(rgba(colors.color, colors.alpha / 100));
+    changeActiveAlpha(colors.alpha);
     let parts = getParts().map((p) => {
       if (p.id !== activePoint) {
         return p;
@@ -243,8 +251,48 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
     });
 
     updateGradient(
-      +b.backgroundImage + 1,
+      +b.backgroundImage,
       glueGradient(parts, gradientDeg) as string
+    );
+  };
+
+  const handleDeletePoint = (which: number) => {
+    const filtered = getParts().filter((p) => p.id !== which);
+    updateGradient(
+      +b.backgroundImage,
+      glueGradient(filtered, gradientDeg) as string
+    );
+  };
+
+  const handleAddPoint = (e) => {
+    const theLine = e.target,
+      rangeLeft = theLine.getBoundingClientRect().left,
+      lineWidth = theLine.getBoundingClientRect().width,
+      position = Math.round(((e.pageX - rangeLeft) * 100) / lineWidth);
+    let isntLast,
+      moreParts = [
+        ...getParts(),
+        {
+          id: -1,
+          position,
+          color: rgba(activeColor, activeAlpha),
+        },
+      ];
+    moreParts = moreParts.sort((a, b) => {
+      if (a.position > b.position) {
+        changeActivePoint(a.id);
+        isntLast = true;
+      }
+      return +(a.position > b.position);
+    });
+
+    if (!isntLast) {
+      changeActivePoint(moreParts.length - 1);
+    }
+
+    updateGradient(
+      +b.backgroundImage,
+      glueGradient(moreParts, gradientDeg) as string
     );
   };
 
@@ -253,9 +301,12 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
       <BackgroundBlockHeader>
         <Header>Background</Header>
         <div>
+          <Button info>Use</Button>
           <Button>&#8648;</Button>
           <Button>&#8650;</Button>
-          <Button danger>&#x2716;</Button>
+          <Button onClick={() => deleteBackground(bl, b.id)} danger>
+            &#x2716;
+          </Button>
         </div>
       </BackgroundBlockHeader>
       <Columns>
@@ -272,13 +323,13 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
             <Gradients>
               {gradients.map((g) => (
                 <GradientMiniature
-                  active={g.id === (b.backgroundImage as number) + 1}
+                  active={g.id === (b.backgroundImage as number)}
                   key={`grad-${b.id}-${g.id}`}
                   style={{ backgroundImage: g.backgroundImage }}
                   onClick={() => {
-                    changeGradient(bl, b.id, g.id - 1);
+                    changeGradient(bl, b.id, g.id);
                     gradientDegChange(
-                      +gradients[g.id - 1].backgroundImage
+                      +gradients[g.id].backgroundImage
                         .replace(/linear-gradient\(\s?/, "")
                         .replace(/deg.*/, "")
                     );
@@ -306,28 +357,31 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
                       .map((p) => `${p.color} ${p.position}%`)
                       .join(",")})`,
                   }}
-                >
-                  {getParts().map((p, i) => {
-                    return (
-                      <GradientPoint
-                        id={`${p.id}-grad-point-${b.id}-${bl}-${i}-${b.backgroundImage}`}
-                        lineId={`grad-line-${bl}-${b.id}-${b.backgroundImage}`}
-                        key={`grad-point-${b.id}-${bl}-${p.id}-${b.backgroundImage}`}
-                        color={p.color}
-                        position={p.position}
-                        onMouseDown={handlePointPosition}
-                        activePoint={p.id === activePoint ? true : false}
-                      ></GradientPoint>
-                    );
-                  })}
-                </GradientLineOverlay>
+                  onMouseDown={handleAddPoint}
+                ></GradientLineOverlay>
+                {getParts().map((p, i) => {
+                  return (
+                    <GradientPoint
+                      id={`${p.id}-grad-point-${b.id}-${bl}-${i}-${b.backgroundImage}`}
+                      lineId={`grad-line-${bl}-${b.id}-${b.backgroundImage}`}
+                      key={`grad-point-${b.id}-${bl}-${p.id}-${b.backgroundImage}`}
+                      color={p.color}
+                      position={p.position}
+                      onMouseDown={handlePointPosition}
+                      activePoint={p.id === activePoint ? true : false}
+                      remove={handleDeletePoint}
+                    ></GradientPoint>
+                  );
+                })}
               </GradientLine>
 
               <br />
               <ColorPickerPanel
                 id={`color-picker-${bl}-${b.id}`}
-                enableAlpha
+                alpha={activeAlpha}
+                color={activeColor}
                 defaultColor={activeColor}
+                enableAlpha
                 mode="RGB"
                 onChange={handlePointColor}
               />
@@ -370,47 +424,6 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
                 }}
                 confirm
               >{`Y: ${b.backgroundPosition?.split(" ")[1]}`}</Button>
-            </p>
-            <p>
-              <small>Size: </small>
-              <Button
-                onClick={() =>
-                  changeBackgroundOption(bl, b.id, "cover", "backgroundSize")
-                }
-                confirm={b.backgroundSize === "cover"}
-              >
-                Cover
-              </Button>
-              <Button
-                onClick={() =>
-                  changeBackgroundOption(bl, b.id, "contain", "backgroundSize")
-                }
-                confirm={b.backgroundSize === "contain"}
-              >
-                Contain
-              </Button>
-              {b.backgroundSize !== "contain" &&
-                b.backgroundSize !== "cover" && (
-                  <Button
-                    confirm={
-                      b.backgroundSize !== "contain" &&
-                      b.backgroundSize !== "cover"
-                    }
-                  >
-                    X: {b.backgroundSize?.split(" ")[0]}
-                  </Button>
-                )}
-              {b.backgroundSize !== "contain" &&
-                b.backgroundSize !== "cover" && (
-                  <Button
-                    confirm={
-                      b.backgroundSize !== "contain" &&
-                      b.backgroundSize !== "cover"
-                    }
-                  >
-                    Y: {b.backgroundSize?.split(" ")[1]}
-                  </Button>
-                )}
             </p>
             <p>
               <small>Repeat: </small>
@@ -519,6 +532,8 @@ const mapDispatchToProps = (dispatch) => ({
   addGradient: () => dispatch(addGradientAction()),
   updateGradient: (idGrad, value) =>
     dispatch(updateGradientAction(idGrad, value)),
+  deleteBackground: (idBlock, idBG) =>
+    dispatch(deleteBackgroundAction(idBlock, idBG)),
 });
 
 const mapStateToProps = (state) => {

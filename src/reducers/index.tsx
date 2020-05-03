@@ -7,61 +7,68 @@ import {
   CHANGE_GRADIENT_DIRECTION,
   ADD_GRADIENT,
   UPDATE_GRADIENT,
+  CHANGE_TEXT_OPTION,
+  SELECT_BLENDING_MODE,
+  ADD_NEW_BACKGROUND,
+  ADD_TEXT_BLOCK,
+  ADD_BACKGROUND_BLOCK,
+  DELETE_BLOCK,
+  DELETE_BACKGROUND,
 } from "./../actions/index";
 
 const gradients = [
   {
-    id: 1,
+    id: 0,
     backgroundImage:
       "linear-gradient(0deg, rgba(185,0,0,0.5) 0%, rgba(0,0,0,1) 50%, rgba(0,212,255,0.5) 100%)",
   },
   {
-    id: 2,
+    id: 1,
     backgroundImage:
       "linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(0,0,0,0.6) 50%, rgba(252,176,69,1) 100%)",
   },
   {
-    id: 3,
+    id: 2,
     backgroundImage:
       "linear-gradient(90deg, rgba(180,58,58,1) 0%, rgba(0,0,0,1) 50%, rgba(245,255,0,1) 100%)",
   },
   {
-    id: 4,
+    id: 3,
     backgroundImage:
       "linear-gradient(45deg, rgba(0,0,0,1) 12%, rgba(180,58,58,1) 29%, rgba(85,0,255,1) 100%)",
   },
   {
-    id: 5,
+    id: 4,
     backgroundImage:
       "linear-gradient(135deg, rgba(0,0,0,0.5) 12%, rgba(58,179,180,1) 50%, rgba(85,0,255,1) 86%)",
   },
   {
-    id: 6,
+    id: 5,
     backgroundImage:
       "linear-gradient(0deg, rgba(207,210,83,1) 0%, rgba(236,255,0,1) 34%, rgba(195,152,43,1) 67%, rgba(21,0,180,1) 86%)",
   },
   {
-    id: 7,
+    id: 6,
     backgroundImage:
       "linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(0,164,255,1) 47%, rgba(195,152,43,1) 50%, rgba(180,124,0,1) 100%)",
   },
   {
-    id: 8,
+    id: 7,
     backgroundImage:
       "radial-gradient(circle, rgba(130,242,255,1) 22%, rgba(70,252,128,0.6) 75%, rgba(2,159,142,0.4) 80%)",
   },
   {
-    id: 9,
+    id: 8,
     backgroundImage:
       "linear-gradient(45deg, rgba(0,0,0,1) 0%, rgba(245,255,0,0.5) 50%, rgba(136,0,255,1) 100%)",
   },
   {
-    id: 10,
+    id: 9,
     backgroundImage:
       "linear-gradient(90deg, rgba(34,193,95,1) 0%, rgba(150,253,145,1) 100%)",
   },
   {
-    id: 11,
+    id: 10,
     backgroundImage:
       "radial-gradient(circle, rgba(223,255,207,0.5) 0%, rgba(92,136,74,0.5) 100%)",
   },
@@ -105,6 +112,7 @@ const preset1 = {
           backgroundPosition: "center center",
         },
       ],
+      blendMode: "normal",
     },
     {
       id: 3,
@@ -280,13 +288,27 @@ const rootReducer = (
           }),
         },
       };
+    case CHANGE_TEXT_OPTION:
+      return {
+        ...state,
+        currentPreset: {
+          ...state.currentPreset,
+          blocks: state.currentPreset.blocks.map((b) => {
+            const block = b;
+            if (block.id === action.payload.idBlock) {
+              block[action.payload.type] = action.payload.value;
+            }
+            return block;
+          }),
+        },
+      };
     case CHANGE_GRADIENT_TYPE:
       return {
         ...state,
         gradients: state.gradients.map((g) => {
           let grad = g;
           if (
-            grad.id === action.payload.grad + 1 &&
+            grad.id === action.payload.grad &&
             action.payload.type === "linear-gradient"
           ) {
             grad.backgroundImage = grad.backgroundImage.replace(
@@ -295,7 +317,7 @@ const rootReducer = (
             );
           }
           if (
-            grad.id === action.payload.grad + 1 &&
+            grad.id === action.payload.grad &&
             action.payload.type === "radial-gradient"
           ) {
             grad.backgroundImage = grad.backgroundImage.replace(
@@ -322,6 +344,127 @@ const rootReducer = (
             ),
           };
         }),
+      };
+    case SELECT_BLENDING_MODE:
+      const withMode = state.currentPreset.blocks.slice(0);
+      return {
+        ...state,
+        currentPreset: {
+          ...state.currentPreset,
+          blocks: withMode.map((b) => {
+            const block = b;
+            if (block.id === action.payload.idBlock) {
+              block.blendMode = action.payload.value;
+            }
+            return block;
+          }),
+        },
+      };
+    case ADD_NEW_BACKGROUND:
+      const withNewBg = state.currentPreset.blocks.slice(0);
+      return {
+        ...state,
+        currentPreset: {
+          ...state.currentPreset,
+          blocks: withNewBg.map((b) => {
+            const block = b;
+            if (block.id === action.payload.idBlock) {
+              block.backgrounds = [
+                {
+                  id: 1,
+                  type: "gradient",
+                  backgroundImage: 0,
+                  backgroundSize: "cover",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "center center",
+                },
+                ...block.backgrounds?.map((b, i) => {
+                  const bg = b;
+                  bg.id = bg.id + 1;
+                  return bg;
+                }),
+              ];
+            }
+            return block;
+          }),
+        },
+      };
+    case ADD_TEXT_BLOCK:
+      const withNewTextBlock = state.currentPreset.blocks.slice(0);
+      return {
+        ...state,
+        currentPreset: {
+          ...state.currentPreset,
+          blocks: [
+            {
+              id: 1,
+              type: "text",
+              text: "",
+              color: "rgba(255, 255, 255, 1)",
+              fontSize: "5rem",
+              fontWeight: "normal",
+              fontStyle: "normal",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              textAlign: "center",
+            },
+            ...withNewTextBlock.map((b) => {
+              const block = b;
+              block.id = block.id + 1;
+              return block;
+            }),
+          ],
+        },
+      };
+    case ADD_BACKGROUND_BLOCK:
+      const withNewBgBlock = state.currentPreset.blocks.slice(0);
+      return {
+        ...state,
+        currentPreset: {
+          ...state.currentPreset,
+          blocks: [
+            {
+              id: 1,
+              type: "background",
+              backgrounds: [],
+              blendMode: "normal",
+            },
+            ...withNewBgBlock.map((b) => {
+              const block = b;
+              block.id = block.id + 1;
+              return block;
+            }),
+          ],
+        },
+      };
+    case DELETE_BLOCK:
+      const withDeleteBlock = state.currentPreset.blocks.slice(0);
+      return {
+        ...state,
+        currentPreset: {
+          ...state.currentPreset,
+          blocks: withDeleteBlock.filter(
+            (b) => b.id !== action.payload.idBlock
+          ),
+        },
+      };
+    case DELETE_BACKGROUND:
+      const withDeleteBG = state.currentPreset.blocks.slice(0);
+      return {
+        ...state,
+        currentPreset: {
+          ...state.currentPreset,
+          blocks: withDeleteBG.map((b) => {
+            const block = b;
+            if (block.id === action.payload.idBlock) {
+              block.backgrounds = block.backgrounds!.filter(
+                (b) => b.id !== action.payload.idBG
+              );
+            }
+            return block;
+          }),
+        },
       };
     default:
       return state;

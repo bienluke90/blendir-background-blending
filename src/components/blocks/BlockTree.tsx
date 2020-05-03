@@ -7,6 +7,11 @@ import BlockTreeGradient from "./BlockTreeGradient";
 import BlockTreeImage from "./BlockTreeImage";
 import BlockTreeBlock from "./BlockTreeBlock";
 import BlockTreeText from "./BlockTreeText";
+import Button from "../elements/Button";
+import {
+  addTextBlock as addTextBlockAction,
+  addBackgroundBlock as addBackgroundBlockAction,
+} from "../../actions";
 
 const BlockTreeContainer = styled.div`
   position: absolute;
@@ -24,8 +29,9 @@ const BlockTreeContainer = styled.div`
     p.active &&
     `
       transform: translateY(0) !important;
-      transition: transform 0.5simport BlockTreeGradient from './BlockTreeGradient';
-;
+      transition: transform 0.5s !important;
+;import { addNewBackground } from './../../actions/index';
+
     `}
 `;
 
@@ -42,7 +48,12 @@ const TopButtons = styled.div`
   margin-left: auto;
   text-align: right;
   .button {
+    height: 35px;
+    min-width: 35px;
     display: inline-block;
+    &:last-child {
+      margin-right: 0;
+    }
   }
 `;
 
@@ -91,6 +102,13 @@ const BackgroundOptions = styled.div`
   }
 `;
 
+const HeaderButtons = styled.div`
+  font-size: 1.8rem;
+  .button {
+    margin-top: 10px;
+  }
+`;
+
 interface BlockTreeCotaninerProps {
   active: boolean;
 }
@@ -103,6 +121,8 @@ interface BlockTreeProps {
     backgroundImage: string;
   }[];
   showPanel: React.Dispatch<React.SetStateAction<string>>;
+  addTextBlock: () => void;
+  addBackgroundBlock: () => void;
 }
 
 const BlockTree: React.FC<BlockTreeProps> = ({
@@ -110,6 +130,8 @@ const BlockTree: React.FC<BlockTreeProps> = ({
   currentPreset,
   showPanel,
   gradients,
+  addTextBlock,
+  addBackgroundBlock,
 }) => {
   useEffect(() => {
     const element = document.getElementById("block-tree-container");
@@ -154,7 +176,13 @@ const BlockTree: React.FC<BlockTreeProps> = ({
           return null;
         });
       return (
-        <BlockTreeBlock key={`tb-${bl.id}`} content={content} type={type} />
+        <BlockTreeBlock
+          key={`tb-${bl.id}`}
+          nr={bl.id}
+          content={content}
+          type={type}
+          blend={bl.blendMode}
+        />
       );
     }
     if (bl.type === "text") {
@@ -167,6 +195,7 @@ const BlockTree: React.FC<BlockTreeProps> = ({
           block={bl}
           content={content}
           type={type}
+          currentPreset={currentPreset}
         />
       );
     }
@@ -175,7 +204,19 @@ const BlockTree: React.FC<BlockTreeProps> = ({
   return (
     <BlockTreeContainer id="block-tree-container" active={active}>
       <Container>
-        <Header>Blocks</Header>
+        <Header>
+          <h2>Blocks</h2>
+          <HeaderButtons>
+            Add new:
+            <br />
+            <Button onClick={addTextBlock} inverted>
+              Text block
+            </Button>
+            <Button onClick={addBackgroundBlock} inverted>
+              Background block
+            </Button>
+          </HeaderButtons>
+        </Header>
         {blockTree}
       </Container>
     </BlockTreeContainer>
@@ -190,6 +231,11 @@ const mapStateToProps = (state) => {
   };
 };
 
+const mapDispatchToProps = (dispatch) => ({
+  addTextBlock: () => dispatch(addTextBlockAction()),
+  addBackgroundBlock: () => dispatch(addBackgroundBlockAction()),
+});
+
 export {
   BackgroundBlock,
   BackgroundBlockHeader,
@@ -199,4 +245,4 @@ export {
   TopButtons,
 };
 
-export default connect(mapStateToProps)(BlockTree);
+export default connect(mapStateToProps, mapDispatchToProps)(BlockTree);

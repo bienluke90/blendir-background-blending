@@ -6,6 +6,13 @@ export const UPDATE_GRADIENT = "UPDATE_GRADIENT";
 export const CHANGE_GRADIENT = "CHANGE_GRADIENT";
 export const CHANGE_GRADIENT_TYPE = "CHANGE_GRADIENT_TYPE";
 export const CHANGE_GRADIENT_DIRECTION = "CHANGE_GRADIENT_DIRECTION";
+export const CHANGE_TEXT_OPTION = "CHANGE_TEXT_OPTION";
+export const SELECT_BLENDING_MODE = "SELECT_BLENDING_MODE";
+export const ADD_NEW_BACKGROUND = "ADD_NEW_BACKGROUND";
+export const ADD_TEXT_BLOCK = "ADD_TEXT_BLOCK";
+export const ADD_BACKGROUND_BLOCK = "ADD_BACKGROUND_BLOCK";
+export const DELETE_BLOCK = "DELETE_BLOCK";
+export const DELETE_BACKGROUND = "DELETE_BACKGROUND";
 
 export const changeBackgroundType = (
   idBlock: number,
@@ -88,6 +95,67 @@ export const updateGradient = (idGrad, value) => {
     payload: {
       idGrad,
       value,
+    },
+  };
+};
+
+export const changeTextOption = (idBlock, value, type) => {
+  return {
+    type: CHANGE_TEXT_OPTION,
+    payload: {
+      idBlock,
+      value,
+      type,
+    },
+  };
+};
+
+export const selectBlendingMode = (idBlock, value) => {
+  return {
+    type: SELECT_BLENDING_MODE,
+    payload: {
+      idBlock,
+      value,
+    },
+  };
+};
+
+export const addNewBackground = (idBlock) => {
+  return {
+    type: ADD_NEW_BACKGROUND,
+    payload: {
+      idBlock,
+    },
+  };
+};
+
+export const addTextBlock = () => {
+  return {
+    type: ADD_TEXT_BLOCK,
+  };
+};
+
+export const addBackgroundBlock = () => {
+  return {
+    type: ADD_BACKGROUND_BLOCK,
+  };
+};
+
+export const deleteBlock = (idBlock) => {
+  return {
+    type: DELETE_BLOCK,
+    payload: {
+      idBlock,
+    },
+  };
+};
+
+export const deleteBackground = (idBlock, idBG) => {
+  return {
+    type: DELETE_BACKGROUND,
+    payload: {
+      idBlock,
+      idBG,
     },
   };
 };

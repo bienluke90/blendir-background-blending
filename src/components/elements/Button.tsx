@@ -73,7 +73,7 @@ interface ButtonProps {
   info?: boolean;
   warning?: boolean;
   danger?: boolean;
-  onClick?: () => void;
+  onClick?: (e?: any) => void;
 }
 
 const Button: React.FC<ButtonProps> = (props) => {

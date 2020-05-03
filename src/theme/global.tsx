@@ -42,7 +42,16 @@ const globalStyle = createGlobalStyle`
      }
    }
    input {
-     min-width: 50px;
+     min-width: 40px;
+     @media screen and (min-width: ${theme.widths.tablet}) {
+      min-width: 50px;
+     }
+   }
+   label {
+     min-width: 40px;
+    @media screen and (min-width: ${theme.widths.tablet}) {
+      min-width: 50px;
+     }
    }
  }
 

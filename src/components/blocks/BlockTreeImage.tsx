@@ -15,6 +15,7 @@ import {
   changeBackgroundType as changeBackgroundTypeAction,
   changeBackgroundImage as changeBackgroundImageAction,
   changeBackgroundOption as changeBackgroundOptionAction,
+  deleteBackground as deleteBackgroundAction,
 } from "../../actions";
 import { handleBgPositionChange } from "../../utils";
 
@@ -49,6 +50,7 @@ interface BlockTreeImageProps {
     value: string,
     type: string
   ) => void;
+  deleteBackground: (idBlock: number, idBG: number) => void;
 }
 
 const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
@@ -58,9 +60,12 @@ const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
   changeBackgroundType,
   changeBackgroundImage,
   changeBackgroundOption,
+  deleteBackground,
 }) => {
   const [bgImage, handleBgImageChange] = useState(
-    (b.backgroundImage as string).replace('url("', "").replace('")', "")
+    b.backgroundImage
+      ? (b.backgroundImage as string).replace('url("', "").replace('")', "")
+      : ""
   );
 
   const handleBgImageUploadEvent = (e) => {
@@ -74,11 +79,6 @@ const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
     uploadInput?.click();
   };
 
-  let gradientParts = (b.backgroundImage as string)
-    .replace(/radial-gradient\(|linear-gradient\(|\)$/g, "")
-    .split(/,(?![^()]*(?:\([^()]*\))?\))/);
-  gradientParts.shift();
-
   return (
     <BackgroundBlock>
       <BackgroundBlockHeader>
@@ -87,7 +87,9 @@ const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
           <Button info>Use</Button>
           <Button>&#8648;</Button>
           <Button> &#8650;</Button>
-          <Button danger>&#x2716;</Button>
+          <Button onClick={() => deleteBackground(bl, b.id)} danger>
+            &#x2716;
+          </Button>
         </div>
       </BackgroundBlockHeader>
       <Columns>
@@ -275,6 +277,8 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(changeBackgroundImageAction(idBlock, idBG, toImage)),
   changeBackgroundOption: (idBlock, idBG, value, type) =>
     dispatch(changeBackgroundOptionAction(idBlock, idBG, value, type)),
+  deleteBackground: (idBlock, idBG) =>
+    dispatch(deleteBackgroundAction(idBlock, idBG)),
 });
 
 const mapStateToProps = (state) => {

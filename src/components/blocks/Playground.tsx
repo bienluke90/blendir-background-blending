@@ -9,7 +9,7 @@ const PlaygroundContainer = styled.div`
   z-index: 99;
 `;
 
-const BlockBG = styled.div`
+const Block = styled.div`
   position: absolute;
   width: 100%;
   height: 100vh;
@@ -48,7 +48,7 @@ const Playground: React.FC<PlaygroundProps> = ({
         .join(",");
       const backgroundBlendMode = b.blendMode || "normal";
       return (
-        <BlockBG
+        <Block
           key={`bGB-${b.id}`}
           style={{
             backgroundImage,
@@ -58,7 +58,7 @@ const Playground: React.FC<PlaygroundProps> = ({
             backgroundColor,
             backgroundBlendMode,
           }}
-        ></BlockBG>
+        ></Block>
       );
     }
     if ((b.type = "text")) {
