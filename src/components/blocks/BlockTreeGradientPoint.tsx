@@ -69,8 +69,10 @@ interface GradientPointProps {
   color: string;
   position: number;
   onMouseDown: (Event: any) => void;
+  onTouchStart: (Event: any) => void;
   activePoint: boolean;
   remove: (which: number) => void;
+  removable: boolean;
 }
 
 const GradientPoint: React.FC<GradientPointProps> = ({
@@ -78,12 +80,15 @@ const GradientPoint: React.FC<GradientPointProps> = ({
   color,
   position,
   onMouseDown,
+  onTouchStart,
   activePoint,
   remove,
+  removable,
 }) => {
   return (
     <GradientPointElement
       id={id}
+      onTouchStart={onTouchStart}
       onMouseDown={onMouseDown}
       activePoint={activePoint}
       position={position}
@@ -92,7 +97,7 @@ const GradientPoint: React.FC<GradientPointProps> = ({
         backgroundColor: opacify(1, color),
       }}
     >
-      {activePoint && (
+      {activePoint && removable && (
         <RemoveButton
           id={`${id}-rm`}
           onClick={(e) => {

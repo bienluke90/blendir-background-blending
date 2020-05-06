@@ -10,11 +10,15 @@ const globalStyle = createGlobalStyle`
   }
 
   html {
+    height: 100vh;
     font-size: 62.5%;
+    overflow:hidden;
   }
 
   body {
     color: ${theme.colors.text};
+    height: 100vh;
+    overflow:hidden;
     font-family: 'Noto Sans JP', sans-serif;
     font-size: ${theme.fontSizes.mobile};
     @media screen and (min-width: ${theme.widths.tablet}) {
@@ -23,6 +27,10 @@ const globalStyle = createGlobalStyle`
     @media screen and (min-width: ${theme.widths.desktop}) {
       font-size: ${theme.fontSizes.desktop}
     }
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+   padding: 0 !important;
   }
 
   a {
@@ -41,20 +49,20 @@ const globalStyle = createGlobalStyle`
        width: 100%;
      }
    }
-   input {
-     min-width: 40px;
-     @media screen and (min-width: ${theme.widths.tablet}) {
-      min-width: 50px;
-     }
+   .rc-color-picker-panel-params {
+     display: flex;
+   }
+   input:not(.rc-color-picker-panel-params-hex) {
+     display: none;
+
+   }
+   label:not(.rc-color-picker-panel-params-lable-hex) {
+     display: none;
    }
    label {
-     min-width: 40px;
-    @media screen and (min-width: ${theme.widths.tablet}) {
-      min-width: 50px;
-     }
+     width: 20px;
    }
  }
-
   small {
     margin: 0 10px 10px 0;
   }

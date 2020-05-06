@@ -1,14 +1,8 @@
-import React, { useState, useEffect, useRef, useReducer } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import theme from "../../theme/theme";
 import alpha from "../../assets/images/alpha.jpg";
-import {
-  rgba,
-  parseToRgb,
-  opacify,
-  transparentize,
-  backgroundImages,
-} from "polished";
+import { rgba } from "polished";
 import { connect } from "react-redux";
 import {
   changeBackgroundType as changeBackgroundTypeAction,
@@ -33,10 +27,10 @@ import { handleBgPositionChange } from "../../utils";
 import Button from "../elements/Button";
 import GradientPoint from "./BlockTreeGradientPoint";
 import Input from "../elements/Input";
+import { isRegExp } from "util";
 
 const Header = styled.h2`
   font-size: 2rem;
-  padding: 10px;
 `;
 
 const Gradients = styled.div`
@@ -158,7 +152,7 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
 
   const handleGradientDegChange = (e) => {
     gradientDegChange(e.target.value);
-    changeGradientDirection(b.backgroundImage as number, e.target.value);
+    changeGradientDirection((+b.backgroundImage - 1) as number, e.target.value);
   };
 
   const glueGradient = (parts, deg = 0) => {
@@ -173,11 +167,13 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
   };
 
   const handlePointPosition = (e) => {
-    const theLine = refLine.current,
+    let pointNr;
+    if (e.type === "touchstart") {
+      e.preventDefault();
+      pointNr = +e.touches[0].target.getAttribute("id").split("-")[0];
+    } else {
       pointNr = +e.target.getAttribute("id").split("-")[0];
-
-    let rangeLeft = theLine.getBoundingClientRect().left,
-      lineWidth = theLine.getBoundingClientRect().width;
+    }
 
     changeActivePoint(pointNr);
     changeActiveColor(getParts()[pointNr].color);
@@ -188,50 +184,89 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
     );
 
     const updatePointPos = (e) => {
-      if (e.pageX >= rangeLeft && e.pageX <= rangeLeft + lineWidth) {
-        let moveTo, isLeft;
-        let parts = getParts().map((p, i) => {
+      const theLine = refLine.current;
+      let rangeLeft = theLine.getBoundingClientRect().left,
+        lineWidth = theLine.getBoundingClientRect().width,
+        touch,
+        pX;
+
+      if (e.type === "touchmove") {
+        touch = e.touches[0];
+        pX = touch.clientX;
+      } else {
+        pX = e.clientX;
+      }
+
+      if (pX >= rangeLeft && pX <= rangeLeft + lineWidth) {
+        let activeTo, moveToLeft;
+        let parts = getParts().map((p) => {
           if (p.id !== pointNr) {
             return p;
           }
-          isLeft =
-            Math.round(((e.pageX - rangeLeft) * 100) / lineWidth) -
-              p.position >=
-            0
-              ? false
-              : true;
+          moveToLeft =
+            ((pX - rangeLeft) * 100) / lineWidth > p.position ? false : true;
           return {
             ...p,
-            position: Math.round(((e.pageX - rangeLeft) * 100) / lineWidth),
+            position: Math.round(((pX - rangeLeft) * 100) / lineWidth),
           };
         });
-        parts = parts.sort((a, b) => {
-          if (a.position > b.position && !isLeft) {
-            moveTo = b.id;
-          }
-          if (a.position > b.position && isLeft) {
-            moveTo = a.id;
-          }
-          return a.position > b.position;
-        });
+
+        if (e.type === "touchmove") {
+          parts.sort((a, b) => {
+            if (a.position < b.position && !moveToLeft) {
+              activeTo = a.id;
+            }
+            if (a.position < b.position && moveToLeft) {
+              activeTo = b.id;
+            }
+            return a.position - b.position;
+          });
+        } else {
+          parts.sort((a, b) => {
+            if (a.position > b.position && !moveToLeft) {
+              activeTo = b.id;
+            }
+            if (a.position > b.position && moveToLeft) {
+              activeTo = a.id;
+            }
+            return a.position - b.position;
+          });
+        }
+
+        if (activeTo >= 0) {
+          changeActivePoint(activeTo);
+        } else {
+          changeActivePoint(pointNr);
+        }
+
         updateGradient(
           +b.backgroundImage,
           glueGradient(parts, gradientDeg) as string
         );
-
-        changeActivePoint(moveTo >= 0 ? moveTo : pointNr);
       }
     };
 
-    const handleMouseMove = (e) => {
+    const handleMove = (e) => {
       updatePointPos(e);
     };
 
-    document.addEventListener("mousemove", handleMouseMove);
+    if (e.type === "touchstart") {
+      document.addEventListener("touchmove", handleMove);
+    }
+    if (e.type !== "touchstart") {
+      document.addEventListener("mousemove", handleMove);
+    }
 
-    document.addEventListener("mouseup", function (e) {
-      document.removeEventListener("mousemove", handleMouseMove);
-    });
+    if (e.type === "touchstart") {
+      document.addEventListener("touchend", function () {
+        document.removeEventListener("touchmove", handleMove);
+      });
+    }
+    if (e.type !== "touchstart") {
+      document.addEventListener("mouseup", function () {
+        document.removeEventListener("mousemove", handleMove);
+      });
+    }
   };
 
   const handlePointColor = (colors) => {
@@ -265,25 +300,36 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
   };
 
   const handleAddPoint = (e) => {
-    const theLine = e.target,
-      rangeLeft = theLine.getBoundingClientRect().left,
+    let isntLast = false,
+      moreParts,
+      theLine = e.target,
+      pX;
+
+    if (e.type === "touchstart") {
+      pX = e.touches[0].clientX;
+    } else {
+      pX = e.clientX;
+    }
+
+    const rangeLeft = theLine.getBoundingClientRect().left,
       lineWidth = theLine.getBoundingClientRect().width,
-      position = Math.round(((e.pageX - rangeLeft) * 100) / lineWidth);
-    let isntLast,
-      moreParts = [
-        ...getParts(),
-        {
-          id: -1,
-          position,
-          color: rgba(activeColor, activeAlpha),
-        },
-      ];
-    moreParts = moreParts.sort((a, b) => {
+      position = Math.round(((pX - rangeLeft) * 100) / lineWidth);
+
+    moreParts = [
+      ...getParts(),
+      {
+        id: -1,
+        position,
+        color: rgba(activeColor, activeAlpha),
+      },
+    ];
+
+    moreParts.sort((a, b) => {
       if (a.position > b.position) {
         changeActivePoint(a.id);
         isntLast = true;
       }
-      return +(a.position > b.position);
+      return a.position - b.position;
     });
 
     if (!isntLast) {
@@ -357,19 +403,22 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
                       .map((p) => `${p.color} ${p.position}%`)
                       .join(",")})`,
                   }}
+                  onTouchStart={handleAddPoint}
                   onMouseDown={handleAddPoint}
                 ></GradientLineOverlay>
-                {getParts().map((p, i) => {
+                {getParts().map((p) => {
                   return (
                     <GradientPoint
-                      id={`${p.id}-grad-point-${b.id}-${bl}-${i}-${b.backgroundImage}`}
+                      id={`${p.id}-grad-point-${b.id}-${bl}-${b.backgroundImage}`}
                       lineId={`grad-line-${bl}-${b.id}-${b.backgroundImage}`}
                       key={`grad-point-${b.id}-${bl}-${p.id}-${b.backgroundImage}`}
                       color={p.color}
                       position={p.position}
+                      onTouchStart={handlePointPosition}
                       onMouseDown={handlePointPosition}
                       activePoint={p.id === activePoint ? true : false}
                       remove={handleDeletePoint}
+                      removable={getParts().length > 2}
                     ></GradientPoint>
                   );
                 })}

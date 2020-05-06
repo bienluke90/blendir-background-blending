@@ -25,6 +25,7 @@ const BlockTreeContainer = styled.div`
   transform: translateX(-100%);
   transition: transform 0.2s;
   overflow-y: scroll;
+  overflow-x: hidden;
   ${(p: BlockTreeCotaninerProps) =>
     p.active &&
     `
@@ -39,6 +40,7 @@ const Header = styled.h1`
   text-align: center;
   color: ${theme.colors.text};
   margin-bottom: 15px;
+  padding: 0;
 `;
 
 const TopButtons = styled.div`
@@ -99,6 +101,9 @@ const Column = styled.div`
 const BackgroundOptions = styled.div`
   p {
     margin-bottom: 10px;
+  }
+  small {
+    font-size: 1.6rem;
   }
 `;
 
