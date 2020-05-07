@@ -34,3 +34,13 @@ export const handleBgPositionChange = (isX: number, initial: string) => {
   }
   return `${v.x} ${v.y}`;
 };
+
+export const handleScrollBlock = (to) => {
+  const el = document.getElementById("main-document");
+  if (to) {
+    el?.classList.add("scroll-block");
+  }
+  if (!to) {
+    el?.classList.remove("scroll-block");
+  }
+};

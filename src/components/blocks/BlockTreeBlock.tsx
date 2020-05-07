@@ -9,6 +9,8 @@ import {
   addNewBackground as addNewBackgroundAction,
   deleteBlock as deleteBlockAction,
 } from "../../actions";
+import ModalRemove from "./ModalRemove";
+import { handleScrollBlock } from "../../utils";
 
 const TreeBlock = styled.div`
   width: calc(100% - 20px);
@@ -69,8 +71,24 @@ const BlockTreeBlock: React.FC<BlockTreeBlockProps> = ({
   deleteBlock,
 }) => {
   const [blendMode, changeBlendMode] = useState<string>(blend);
+  const [modalRemove, setModalRemove] = useState<boolean>(false);
+
   return (
     <TreeBlock>
+      {modalRemove && (
+        <ModalRemove
+          title={"Are you sure?"}
+          subtitle={`You are about to delete this block. Continue?`}
+          onYes={() => {
+            handleScrollBlock(false);
+            deleteBlock(nr);
+          }}
+          onNo={() => {
+            handleScrollBlock(false);
+            setModalRemove(false);
+          }}
+        />
+      )}
       <TreeBlockHeader>
         <div>
           <p>{type}</p>
@@ -167,7 +185,13 @@ const BlockTreeBlock: React.FC<BlockTreeBlockProps> = ({
           <Button onClick={() => addNewBackground(nr)}>&#x271A;</Button>
           <Button>&#8650;</Button>
           <Button>&#8648;</Button>
-          <Button onClick={() => deleteBlock(nr)} danger>
+          <Button
+            onClick={() => {
+              handleScrollBlock(true);
+              setModalRemove(true);
+            }}
+            danger
+          >
             &#x2716;
           </Button>
         </TopButtons>

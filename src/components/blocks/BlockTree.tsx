@@ -16,23 +16,18 @@ import {
 const BlockTreeContainer = styled.div`
   position: absolute;
   top: 0;
-  left: 0;
+  left: -100%;
   width: 100%;
   height: 100vh;
   padding-top: 90px;
   background-color: ${theme.panel.backgroundColor};
   z-index: 999;
-  transform: translateX(-100%);
-  transition: transform 0.2s;
   overflow-y: scroll;
   overflow-x: hidden;
   ${(p: BlockTreeCotaninerProps) =>
     p.active &&
     `
-      transform: translateY(0) !important;
-      transition: transform 0.5s !important;
-;import { addNewBackground } from './../../actions/index';
-
+      left: 0 !important;
     `}
 `;
 

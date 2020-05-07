@@ -17,7 +17,8 @@ import {
   changeBackgroundOption as changeBackgroundOptionAction,
   deleteBackground as deleteBackgroundAction,
 } from "../../actions";
-import { handleBgPositionChange } from "../../utils";
+import { handleBgPositionChange, handleScrollBlock } from "../../utils";
+import ModalRemove from "./ModalRemove";
 
 const Header = styled.h2`
   font-size: 2rem;
@@ -68,6 +69,8 @@ const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
       : ""
   );
 
+  const [modalRemove, setModalRemove] = useState<boolean>(false);
+
   const handleBgImageUploadEvent = (e) => {
     const imgUrl = URL.createObjectURL(e.target.files[0]);
     changeBackgroundImage(bl, b.id, imgUrl);
@@ -81,13 +84,27 @@ const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
 
   return (
     <BackgroundBlock>
+      {modalRemove && (
+        <ModalRemove
+          title={"Are you sure?"}
+          subtitle={`You are about to delete this image background. Continue?`}
+          onYes={() => {
+            handleScrollBlock(false);
+            deleteBackground(bl, b.id);
+          }}
+          onNo={() => {
+            handleScrollBlock(false);
+            setModalRemove(false);
+          }}
+        />
+      )}
       <BackgroundBlockHeader>
         <Header>Background</Header>
         <div>
           <Button info>Use</Button>
           <Button>&#8648;</Button>
           <Button> &#8650;</Button>
-          <Button onClick={() => deleteBackground(bl, b.id)} danger>
+          <Button onClick={() => setModalRemove(true)} danger>
             &#x2716;
           </Button>
         </div>

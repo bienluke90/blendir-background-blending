@@ -23,11 +23,11 @@ import {
 } from "./BlockTree";
 import { Panel as ColorPickerPanel } from "rc-color-picker";
 import "rc-color-picker/assets/index.css";
-import { handleBgPositionChange } from "../../utils";
+import { handleBgPositionChange, handleScrollBlock } from "../../utils";
 import Button from "../elements/Button";
 import GradientPoint from "./BlockTreeGradientPoint";
 import Input from "../elements/Input";
-import { isRegExp } from "util";
+import ModalRemove from "./ModalRemove";
 
 const Header = styled.h2`
   font-size: 2rem;
@@ -149,6 +149,7 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
   const [activeColor, changeActiveColor] = useState<string>("#ffffff");
   const [activeAlpha, changeActiveAlpha] = useState<number>(100);
   const refLine = useRef<HTMLElement>(document.createElement("div"));
+  const [modalRemove, setModalRemove] = useState<boolean>(false);
 
   const handleGradientDegChange = (e) => {
     gradientDegChange(e.target.value);
@@ -344,13 +345,27 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
 
   return (
     <BackgroundBlock>
+      {modalRemove && (
+        <ModalRemove
+          title={"Are you sure?"}
+          subtitle={`You are about to delete this gradient background. Continue?`}
+          onYes={() => {
+            handleScrollBlock(false);
+            deleteBackground(bl, b.id);
+          }}
+          onNo={() => {
+            handleScrollBlock(false);
+            setModalRemove(false);
+          }}
+        />
+      )}
       <BackgroundBlockHeader>
         <Header>Background</Header>
         <div>
           <Button info>Use</Button>
           <Button>&#8648;</Button>
           <Button>&#8650;</Button>
-          <Button onClick={() => deleteBackground(bl, b.id)} danger>
+          <Button onClick={() => setModalRemove(true)} danger>
             &#x2716;
           </Button>
         </div>
