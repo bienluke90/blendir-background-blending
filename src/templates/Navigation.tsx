@@ -74,7 +74,7 @@ const Navicon = styled.div`
   position: relative;
   width: 4rem;
   height: 3.4rem;
-  padding: 0.8rem;
+  padding-top: 3px;
   border-radius: ${theme.borderRadius};
   background: ${theme.colors.text};
   margin-left: auto;
@@ -83,8 +83,9 @@ const Navicon = styled.div`
   cursor: pointer;
   span {
     display: block;
-    width: 100%;
+    width: 24px;
     height: 3px;
+    margin: 5px 8px;
     border-radius: 2px;
     background-color: ${theme.nav.backgroundColor};
     margin-bottom: 0.5rem;
@@ -93,8 +94,12 @@ const Navicon = styled.div`
     display: none;
     position: absolute;
     top: 0;
-    left: 6.5px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
     text-shadow: 0 0 0 transparent;
+    text-indent: -2px;
   }
   ${(p: NaviconProps) =>
     p.active &&

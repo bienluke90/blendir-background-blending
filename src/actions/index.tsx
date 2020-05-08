@@ -13,6 +13,9 @@ export const ADD_TEXT_BLOCK = "ADD_TEXT_BLOCK";
 export const ADD_BACKGROUND_BLOCK = "ADD_BACKGROUND_BLOCK";
 export const DELETE_BLOCK = "DELETE_BLOCK";
 export const DELETE_BACKGROUND = "DELETE_BACKGROUND";
+export const MOVE_BLOCK = "MOVE_BLOCK";
+export const MOVE_BACKGROUND = "MOVE_BACKGROUND";
+export const ACTIVATE_PRESET = "ACTIVATE_PRESET";
 
 export const changeBackgroundType = (
   idBlock: number,
@@ -83,9 +86,12 @@ export const changeGradientDirection = (grad, direction) => {
   };
 };
 
-export const addGradient = () => {
+export const addGradient = (from) => {
   return {
     type: ADD_GRADIENT,
+    payload: {
+      from,
+    },
   };
 };
 
@@ -156,6 +162,36 @@ export const deleteBackground = (idBlock, idBG) => {
     payload: {
       idBlock,
       idBG,
+    },
+  };
+};
+
+export const moveBlock = (idBlock, direction) => {
+  return {
+    type: MOVE_BLOCK,
+    payload: {
+      idBlock,
+      direction,
+    },
+  };
+};
+
+export const moveBackground = (idBlock, idBG, direction) => {
+  return {
+    type: MOVE_BACKGROUND,
+    payload: {
+      idBlock,
+      idBG,
+      direction,
+    },
+  };
+};
+
+export const activatePreset = (idPreset) => {
+  return {
+    type: ACTIVATE_PRESET,
+    payload: {
+      idPreset,
     },
   };
 };

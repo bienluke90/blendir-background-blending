@@ -16,12 +16,14 @@ import {
   changeBackgroundImage as changeBackgroundImageAction,
   changeBackgroundOption as changeBackgroundOptionAction,
   deleteBackground as deleteBackgroundAction,
+  moveBackground as moveBackgroundAction,
 } from "../../actions";
 import { handleBgPositionChange, handleScrollBlock } from "../../utils";
 import ModalRemove from "./ModalRemove";
 
 const Header = styled.h2`
-  font-size: 2rem;
+  font-size: 135%;
+  font-weight: normal;
   padding: 10px;
 `;
 
@@ -52,6 +54,7 @@ interface BlockTreeImageProps {
     type: string
   ) => void;
   deleteBackground: (idBlock: number, idBG: number) => void;
+  moveBackground: (idBlock: number, idBG: number, direction: number) => void;
 }
 
 const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
@@ -62,6 +65,7 @@ const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
   changeBackgroundImage,
   changeBackgroundOption,
   deleteBackground,
+  moveBackground,
 }) => {
   const [bgImage, handleBgImageChange] = useState(
     b.backgroundImage
@@ -102,8 +106,14 @@ const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
         <Header>Background</Header>
         <div>
           <Button info>Use</Button>
-          <Button>&#8648;</Button>
-          <Button> &#8650;</Button>
+          {currentPreset.blocks[bl].backgrounds!.length - 1 !== b.id && (
+            <Button onClick={() => moveBackground(bl, b.id, 1)}>&#8650;</Button>
+          )}
+          {b.id !== 0 && (
+            <Button onClick={() => moveBackground(bl, b.id, -1)}>
+              &#8648;
+            </Button>
+          )}
           <Button onClick={() => setModalRemove(true)} danger>
             &#x2716;
           </Button>
@@ -296,6 +306,8 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(changeBackgroundOptionAction(idBlock, idBG, value, type)),
   deleteBackground: (idBlock, idBG) =>
     dispatch(deleteBackgroundAction(idBlock, idBG)),
+  moveBackground: (idBlock, idBG, direction) =>
+    dispatch(moveBackgroundAction(idBlock, idBG, direction)),
 });
 
 const mapStateToProps = (state) => {

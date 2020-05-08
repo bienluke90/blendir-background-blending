@@ -10,9 +10,11 @@ import { connect } from "react-redux";
 import {
   changeTextOption as changeTextOptionAction,
   deleteBlock as deleteBlockAction,
+  moveBlock as moveBlockAction,
 } from "../../actions";
 import { rgba } from "polished";
-import { deleteBlock } from "./../../actions/index";
+import ModalRemove from "./ModalRemove";
+import { handleScrollBlock } from "../../utils";
 
 const TreeBlock = styled.div`
   width: calc(100% - 20px);
@@ -20,15 +22,21 @@ const TreeBlock = styled.div`
   background-color: #ddd;
   border-radius: ${theme.borderRadius};
   margin: 0 auto 15px auto;
+  &:last-child {
+    margin-bottom: 35px;
+  }
 `;
 
 const TreeBlockHeader = styled.div`
   display: flex;
   color: ${theme.colors.textInverted};
-  font-size: 1.5rem;
+  font-size: 100%;
   padding: 10px;
+  h3 {
+    font-size: 140%;
+  }
   p {
-    font-size: 2.4rem;
+    font-size: 100%;
   }
 `;
 
@@ -38,7 +46,7 @@ const TreeBlockContent = styled.div`
 
 const Highlighted = styled.div`
   margin: 10px 0;
-  font-size: 2.4rem;
+  font-size: 150%;
   font-weight: 500;
 `;
 
@@ -49,6 +57,7 @@ interface BlockTreeTextProps {
   currentPreset: Preset;
   changeTextOption: (idBlock: number, value: string, type: string) => void;
   deleteBlock: (idBlock: number) => void;
+  moveBlock: (idBlock: number, direction: number) => void;
 }
 
 const BlockTreeText: React.FC<BlockTreeTextProps> = ({
@@ -57,6 +66,8 @@ const BlockTreeText: React.FC<BlockTreeTextProps> = ({
   block: b,
   changeTextOption,
   deleteBlock,
+  moveBlock,
+  currentPreset,
 }) => {
   const [text, changeText] = useState<string>(content);
   const [fontSize, changeFontSize] = useState<number>(
@@ -71,6 +82,7 @@ const BlockTreeText: React.FC<BlockTreeTextProps> = ({
 
   const [xPos, xPosChange] = useState<number>(+b.left!.replace("%", ""));
   const [yPos, yPosChange] = useState<number>(+b.top!.replace("%", ""));
+  const [modalRemove, setModalRemove] = useState<boolean>(false);
 
   const handleTextColorChange = (colors) => {
     changeActiveColor(colors.color);
@@ -80,13 +92,32 @@ const BlockTreeText: React.FC<BlockTreeTextProps> = ({
 
   return (
     <TreeBlock>
+      {modalRemove && (
+        <ModalRemove
+          title={"Are you sure?"}
+          subtitle={`You are about to delete this block. Continue?`}
+          onYes={() => {
+            handleScrollBlock(false);
+            setModalRemove(false);
+            deleteBlock(b.id);
+          }}
+          onNo={() => {
+            handleScrollBlock(false);
+            setModalRemove(false);
+          }}
+        />
+      )}
       <TreeBlockHeader>
-        <p>{type}</p>
+        <h3>{type}</h3>
         <TopButtons>
           <Button info>Use</Button>
-          <Button>&#8650;</Button>
-          <Button>&#8648;</Button>
-          <Button onClick={() => deleteBlock(b.id)} danger>
+          {currentPreset.blocks.length - 1 !== b.id && (
+            <Button onClick={() => moveBlock(b.id, 1)}>&#8650;</Button>
+          )}
+          {b.id !== 0 && (
+            <Button onClick={() => moveBlock(b.id, -1)}>&#8648;</Button>
+          )}
+          <Button onClick={() => setModalRemove(true)} danger>
             &#x2716;
           </Button>
         </TopButtons>
@@ -213,6 +244,8 @@ const mapDispatchToProps = (dispatch) => ({
   changeTextOption: (idBlock, value, type) =>
     dispatch(changeTextOptionAction(idBlock, value, type)),
   deleteBlock: (idBlock) => dispatch(deleteBlockAction(idBlock)),
+  moveBlock: (idBlock, direction) =>
+    dispatch(moveBlockAction(idBlock, direction)),
 });
 
 export default connect(null, mapDispatchToProps)(BlockTreeText);

@@ -50,12 +50,6 @@ const globalStyle = createGlobalStyle`
   }
 
  .rc-color-picker-panel  {
-   width: 100%;
-   .rc-color-picker-panel-board {
-     & > div {
-       width: 100%;
-     }
-   }
    .rc-color-picker-panel-params {
      display: flex;
    }

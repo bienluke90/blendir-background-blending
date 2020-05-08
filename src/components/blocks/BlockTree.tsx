@@ -20,6 +20,7 @@ const BlockTreeContainer = styled.div`
   width: 100%;
   height: 100vh;
   padding-top: 90px;
+  padding-bottom: 90px;
   background-color: ${theme.panel.backgroundColor};
   z-index: 999;
   overflow-y: scroll;
@@ -31,11 +32,14 @@ const BlockTreeContainer = styled.div`
     `}
 `;
 
-const Header = styled.h1`
+const Header = styled.div`
   text-align: center;
   color: ${theme.colors.text};
   margin-bottom: 15px;
   padding: 0;
+  h1 {
+    font-size: 300%;
+  }
 `;
 
 const TopButtons = styled.div`
@@ -45,9 +49,11 @@ const TopButtons = styled.div`
   margin-left: auto;
   text-align: right;
   .button {
+    font-size: 90%;
     height: 35px;
     min-width: 35px;
     display: inline-block;
+    margin-right: 5px;
     &:last-child {
       margin-right: 0;
     }
@@ -60,7 +66,7 @@ const BackgroundBlock = styled.div`
   margin-bottom: 10px;
   padding: 8px 12px;
   .button {
-    font-size: 1.2rem;
+    font-size: 100%;
     margin-right: 4px;
   }
 `;
@@ -73,8 +79,11 @@ const BackgroundBlockHeader = styled.div`
   padding: 10px 0 0 0;
   p {
     max-width: 40%;
-    font-size: 1.8rem;
+    font-size: 100%;
     margin-right: 1rem;
+  }
+  .button {
+    font-size: 70%;
   }
 `;
 
@@ -94,16 +103,19 @@ const Column = styled.div`
 `;
 
 const BackgroundOptions = styled.div`
+  .button {
+    font-size: 80%;
+  }
   p {
+    font-size: 100%;
     margin-bottom: 10px;
   }
   small {
-    font-size: 1.6rem;
+    font-size: 90%;
   }
 `;
 
 const HeaderButtons = styled.div`
-  font-size: 1.8rem;
   .button {
     margin-top: 10px;
   }
@@ -182,6 +194,7 @@ const BlockTree: React.FC<BlockTreeProps> = ({
           content={content}
           type={type}
           blend={bl.blendMode}
+          currentPreset={currentPreset}
         />
       );
     }
@@ -205,7 +218,7 @@ const BlockTree: React.FC<BlockTreeProps> = ({
     <BlockTreeContainer id="block-tree-container" active={active}>
       <Container>
         <Header>
-          <h2>Blocks</h2>
+          <h1>Blocks</h1>
           <HeaderButtons>
             Add new:
             <br />

@@ -32,6 +32,7 @@ type Block = {
 
 type Preset = {
   id: number;
+  name: string;
   blocks: Block[];
 };
 

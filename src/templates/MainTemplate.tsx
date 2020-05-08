@@ -22,7 +22,7 @@ const MainTemplate: React.FC<MainTemplateProps> = ({ panel, showPanel }) => {
   return (
     <TemplateContainer>
       <Playground />
-      <Presets active={panel === "presets"} />
+      <Presets showPanel={showPanel} active={panel === "presets"} />
       <BlockTree showPanel={showPanel} active={panel === "blocks"} />
     </TemplateContainer>
   );

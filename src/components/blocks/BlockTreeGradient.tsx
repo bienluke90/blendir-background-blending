@@ -13,6 +13,7 @@ import {
   addGradient as addGradientAction,
   updateGradient as updateGradientAction,
   deleteBackground as deleteBackgroundAction,
+  moveBackground as moveBackgroundAction,
 } from "../../actions";
 import {
   BackgroundBlock,
@@ -30,7 +31,8 @@ import Input from "../elements/Input";
 import ModalRemove from "./ModalRemove";
 
 const Header = styled.h2`
-  font-size: 2rem;
+  font-size: 135%;
+  font-weight: normal;
 `;
 
 const Gradients = styled.div`
@@ -49,7 +51,7 @@ const GradientMiniature = styled.div`
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 2rem;
+  font-size: 150%;
   height: 45px;
   width: 50px;
   margin: 3px;
@@ -66,7 +68,7 @@ const GradientMiniature = styled.div`
 const GradientLine = styled.div`
   position: relative;
   width: calc(100% - 10px);
-  margin: 30px auto 15px auto;
+  margin: 30px auto 25px auto;
   border: 2px solid #555;
   height: 35px;
   background-image: url(${alpha});
@@ -106,9 +108,10 @@ interface BlockTreeGradientProps {
   changeGradient: (idBlock: number, idBG: number, value: number) => void;
   changeGradientType: (grad: number, type: string) => void;
   changeGradientDirection: (grad: number, direction: number) => void;
-  addGradient: () => void;
+  addGradient: (from: number) => void;
   updateGradient: (idGrad: number, value: string) => void;
   deleteBackground: (idBlock: number, idBG: number) => void;
+  moveBackground: (idBlock: number, idBG: number, direction: number) => void;
 }
 
 const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
@@ -123,6 +126,8 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
   addGradient,
   updateGradient,
   deleteBackground,
+  currentPreset,
+  moveBackground,
 }) => {
   const getGrad = () => {
     return gradients[b.backgroundImage].backgroundImage;
@@ -363,8 +368,14 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
         <Header>Background</Header>
         <div>
           <Button info>Use</Button>
-          <Button>&#8648;</Button>
-          <Button>&#8650;</Button>
+          {currentPreset.blocks[bl].backgrounds!.length - 1 !== b.id && (
+            <Button onClick={() => moveBackground(bl, b.id, 1)}>&#8650;</Button>
+          )}
+          {b.id !== 0 && (
+            <Button onClick={() => moveBackground(bl, b.id, -1)}>
+              &#8648;
+            </Button>
+          )}
           <Button onClick={() => setModalRemove(true)} danger>
             &#x2716;
           </Button>
@@ -400,184 +411,154 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
               ))}
               <GradientMiniature
                 onClick={() => {
-                  addGradient();
-                  changeGradient(bl, b.id, gradients[gradients.length - 1].id);
+                  addGradient(b.backgroundImage as number);
                   changeActivePoint(0);
+                  changeGradient(
+                    bl,
+                    b.id,
+                    gradients[gradients.length - 1].id + 1
+                  );
                 }}
               >
                 +
               </GradientMiniature>
             </Gradients>
-            <BackgroundOptions>
-              <GradientLine>
-                <GradientLineOverlay
-                  id={`grad-line-${bl}-${b.id}-${b.backgroundImage}`}
-                  ref={refLine}
-                  style={{
-                    backgroundImage: `linear-gradient(90deg, ${getParts()
-                      .map((p) => `${p.color} ${p.position}%`)
-                      .join(",")})`,
-                  }}
-                  onTouchStart={handleAddPoint}
-                  onMouseDown={handleAddPoint}
-                ></GradientLineOverlay>
-                {getParts().map((p) => {
-                  return (
-                    <GradientPoint
-                      id={`${p.id}-grad-point-${b.id}-${bl}-${b.backgroundImage}`}
-                      lineId={`grad-line-${bl}-${b.id}-${b.backgroundImage}`}
-                      key={`grad-point-${b.id}-${bl}-${p.id}-${b.backgroundImage}`}
-                      color={p.color}
-                      position={p.position}
-                      onTouchStart={handlePointPosition}
-                      onMouseDown={handlePointPosition}
-                      activePoint={p.id === activePoint ? true : false}
-                      remove={handleDeletePoint}
-                      removable={getParts().length > 2}
-                    ></GradientPoint>
-                  );
-                })}
-              </GradientLine>
-
-              <br />
-              <ColorPickerPanel
-                id={`color-picker-${bl}-${b.id}`}
-                alpha={activeAlpha}
-                color={activeColor}
-                defaultColor={activeColor}
-                enableAlpha
-                mode="RGB"
-                onChange={handlePointColor}
-              />
-              <br />
-            </BackgroundOptions>
+          </BackgroundOptions>
+          <BackgroundOptions>
+            <GradientLine>
+              <GradientLineOverlay
+                id={`grad-line-${bl}-${b.id}-${b.backgroundImage}`}
+                ref={refLine}
+                style={{
+                  backgroundImage: `linear-gradient(90deg, ${getParts()
+                    .map((p) => `${p.color} ${p.position}%`)
+                    .join(",")})`,
+                }}
+                onTouchStart={handleAddPoint}
+                onMouseDown={handleAddPoint}
+              ></GradientLineOverlay>
+              {getParts().map((p) => {
+                return (
+                  <GradientPoint
+                    id={`${p.id}-grad-point-${b.id}-${bl}-${b.backgroundImage}`}
+                    lineId={`grad-line-${bl}-${b.id}-${b.backgroundImage}`}
+                    key={`grad-point-${b.id}-${bl}-${p.id}-${b.backgroundImage}`}
+                    color={p.color}
+                    position={p.position}
+                    onTouchStart={handlePointPosition}
+                    onMouseDown={handlePointPosition}
+                    activePoint={p.id === activePoint ? true : false}
+                    remove={handleDeletePoint}
+                    removable={getParts().length > 2}
+                  ></GradientPoint>
+                );
+              })}
+            </GradientLine>
           </BackgroundOptions>
         </Column>
         <Column>
           <BackgroundOptions>
-            <p>Options:</p>
-            <p>
-              <small>Position: </small>
-              <Button
-                onClick={() => {
-                  const newPos = handleBgPositionChange(
-                    0,
-                    b.backgroundPosition!
-                  );
-                  changeBackgroundOption(
-                    bl,
-                    b.id,
-                    newPos,
-                    "backgroundPosition"
-                  );
-                }}
-                confirm
-              >{`X: ${b.backgroundPosition?.split(" ")[0]}`}</Button>
-              <Button
-                onClick={() => {
-                  const newPos = handleBgPositionChange(
-                    1,
-                    b.backgroundPosition!
-                  );
-                  changeBackgroundOption(
-                    bl,
-                    b.id,
-                    newPos,
-                    "backgroundPosition"
-                  );
-                }}
-                confirm
-              >{`Y: ${b.backgroundPosition?.split(" ")[1]}`}</Button>
-            </p>
-            <p>
-              <small>Repeat: </small>
-              <Button
-                onClick={() =>
-                  changeBackgroundOption(
-                    bl,
-                    b.id,
-                    "no-repeat",
-                    "backgroundRepeat"
-                  )
-                }
-                confirm={b.backgroundRepeat === "no-repeat"}
-              >
-                No repeat
-              </Button>
-              <Button
-                onClick={() =>
-                  changeBackgroundOption(bl, b.id, "repeat", "backgroundRepeat")
-                }
-                confirm={b.backgroundRepeat === "repeat"}
-              >
-                Repeat
-              </Button>
-              <Button
-                onClick={() =>
-                  changeBackgroundOption(
-                    bl,
-                    b.id,
-                    "repeat-x",
-                    "backgroundRepeat"
-                  )
-                }
-                confirm={b.backgroundRepeat === "repeat-x"}
-              >
-                Repeat X
-              </Button>
-              <Button
-                onClick={() =>
-                  changeBackgroundOption(
-                    bl,
-                    b.id,
-                    "repeat-y",
-                    "backgroundRepeat"
-                  )
-                }
-                confirm={b.backgroundRepeat === "repeat-y"}
-              >
-                Repeat Y
-              </Button>
-            </p>
-            <p>
-              <small>Type: </small>
-              <Button
-                onClick={() => {
-                  changeGradientType(
-                    b.backgroundImage as number,
-                    "linear-gradient"
-                  );
-                  gradientDegChange(0);
-                }}
-                confirm={getType() === "linear-gradient"}
-              >
-                Linear
-              </Button>
-              <Button
-                onClick={() =>
-                  changeGradientType(
-                    b.backgroundImage as number,
-                    "radial-gradient"
-                  )
-                }
-                confirm={getType() === "radial-gradient"}
-              >
-                Radial
-              </Button>
-            </p>
-            {getType() === "linear-gradient" && (
-              <p>
-                <small>Direction (deg): </small>
-                <Input
-                  onChange={handleGradientDegChange}
-                  value={gradientDeg}
-                  type="number"
-                />
-              </p>
-            )}
+            <ColorPickerPanel
+              id={`color-picker-${bl}-${b.id}`}
+              alpha={activeAlpha}
+              color={activeColor}
+              defaultColor={activeColor}
+              enableAlpha
+              mode="RGB"
+              onChange={handlePointColor}
+            />
           </BackgroundOptions>
         </Column>
       </Columns>
+      <br />
+      <BackgroundOptions>
+        <p>Options:</p>
+        <p>
+          <small>Position: </small>
+          <Button
+            onClick={() => {
+              const newPos = handleBgPositionChange(0, b.backgroundPosition!);
+              changeBackgroundOption(bl, b.id, newPos, "backgroundPosition");
+            }}
+            confirm
+          >{`X: ${b.backgroundPosition?.split(" ")[0]}`}</Button>
+          <Button
+            onClick={() => {
+              const newPos = handleBgPositionChange(1, b.backgroundPosition!);
+              changeBackgroundOption(bl, b.id, newPos, "backgroundPosition");
+            }}
+            confirm
+          >{`Y: ${b.backgroundPosition?.split(" ")[1]}`}</Button>
+        </p>
+        <p>
+          <small>Repeat: </small>
+          <Button
+            onClick={() =>
+              changeBackgroundOption(bl, b.id, "no-repeat", "backgroundRepeat")
+            }
+            confirm={b.backgroundRepeat === "no-repeat"}
+          >
+            No repeat
+          </Button>
+          <Button
+            onClick={() =>
+              changeBackgroundOption(bl, b.id, "repeat", "backgroundRepeat")
+            }
+            confirm={b.backgroundRepeat === "repeat"}
+          >
+            Repeat
+          </Button>
+          <Button
+            onClick={() =>
+              changeBackgroundOption(bl, b.id, "repeat-x", "backgroundRepeat")
+            }
+            confirm={b.backgroundRepeat === "repeat-x"}
+          >
+            Repeat X
+          </Button>
+          <Button
+            onClick={() =>
+              changeBackgroundOption(bl, b.id, "repeat-y", "backgroundRepeat")
+            }
+            confirm={b.backgroundRepeat === "repeat-y"}
+          >
+            Repeat Y
+          </Button>
+        </p>
+        <p>
+          <small>Type: </small>
+          <Button
+            onClick={() => {
+              changeGradientType(
+                b.backgroundImage as number,
+                "linear-gradient"
+              );
+              gradientDegChange(0);
+            }}
+            confirm={getType() === "linear-gradient"}
+          >
+            Linear
+          </Button>
+          <Button
+            onClick={() =>
+              changeGradientType(b.backgroundImage as number, "radial-gradient")
+            }
+            confirm={getType() === "radial-gradient"}
+          >
+            Radial
+          </Button>
+        </p>
+        {getType() === "linear-gradient" && (
+          <p>
+            <small>Direction (deg): </small>
+            <Input
+              onChange={handleGradientDegChange}
+              value={gradientDeg}
+              type="number"
+            />
+          </p>
+        )}
+      </BackgroundOptions>
     </BackgroundBlock>
   );
 };
@@ -593,11 +574,13 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(changeGradientTypeAction(grad, type)),
   changeGradientDirection: (grad, type) =>
     dispatch(changeGradientDirectionAction(grad, type)),
-  addGradient: () => dispatch(addGradientAction()),
+  addGradient: (from) => dispatch(addGradientAction(from)),
   updateGradient: (idGrad, value) =>
     dispatch(updateGradientAction(idGrad, value)),
   deleteBackground: (idBlock, idBG) =>
     dispatch(deleteBackgroundAction(idBlock, idBG)),
+  moveBackground: (idBlock, idBG, direction) =>
+    dispatch(moveBackgroundAction(idBlock, idBG, direction)),
 });
 
 const mapStateToProps = (state) => {

@@ -14,6 +14,9 @@ import {
   ADD_BACKGROUND_BLOCK,
   DELETE_BLOCK,
   DELETE_BACKGROUND,
+  MOVE_BLOCK,
+  MOVE_BACKGROUND,
+  ACTIVATE_PRESET,
 } from "./../actions/index";
 
 const gradients = [
@@ -74,14 +77,15 @@ const gradients = [
   },
 ];
 const preset1 = {
-  id: 1,
+  id: 0,
+  name: "ABC Solutions company",
   blocks: [
     {
-      id: 1,
+      id: 0,
       type: "background",
       backgrounds: [
         {
-          id: 1,
+          id: 0,
           type: "image",
           backgroundImage: 'url("https://svgsilh.com/svg/1327960.svg")',
           backgroundSize: "contain",
@@ -89,7 +93,7 @@ const preset1 = {
           backgroundPosition: "center center",
         },
         {
-          id: 2,
+          id: 1,
           type: "gradient",
           backgroundImage: 9,
           backgroundSize: "cover",
@@ -100,11 +104,11 @@ const preset1 = {
       blendMode: "overlay",
     },
     {
-      id: 2,
+      id: 1,
       type: "background",
       backgrounds: [
         {
-          id: 1,
+          id: 0,
           type: "gradient",
           backgroundImage: 10,
           backgroundSize: "cover",
@@ -115,11 +119,54 @@ const preset1 = {
       blendMode: "normal",
     },
     {
-      id: 3,
+      id: 2,
       type: "text",
       text: "Welcome to ABC Solutions",
       color: "rgba(0, 40, 0, 0.66)",
-      fontSize: "10rem",
+      fontSize: "7.5rem",
+      fontWeight: "bold",
+      fontStyle: "normal",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      textAlign: "center",
+    },
+  ],
+};
+
+const preset2 = {
+  id: 1,
+  name: "Wingify airlines brand",
+  blocks: [
+    {
+      id: 0,
+      type: "background",
+      backgrounds: [
+        {
+          id: 0,
+          type: "image",
+          backgroundImage: 'url("https://svgsilh.com/svg/1740459-03a9f4.svg")',
+          backgroundSize: "contain",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center center",
+        },
+        {
+          id: 1,
+          type: "gradient",
+          backgroundImage: 0,
+          backgroundSize: "cover",
+          backgroundRepeat: "repeat",
+          backgroundPosition: "50% 50%",
+        },
+      ],
+      blendMode: "overlay",
+    },
+    {
+      id: 2,
+      type: "text",
+      text: "Welcome to Wingify Airlines",
+      color: "rgba(235, 255, 255, 0.85)",
+      fontSize: "7.5rem",
       fontWeight: "bold",
       fontStyle: "normal",
       top: "50%",
@@ -131,7 +178,7 @@ const preset1 = {
 };
 
 const initialState = {
-  presets: [preset1],
+  presets: [preset1, preset2],
   currentPreset: preset1,
   gradients,
 };
@@ -245,10 +292,10 @@ const rootReducer = (
           {
             id:
               state.gradients.reduce((a, c) => {
-                return a > c.id ? c.id + 1 : a + 1;
+                return a > c.id ? a : c.id;
               }, 0) + 1,
             backgroundImage:
-              "linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(255,255,255,1) 100%)",
+              state.gradients[action.payload.from].backgroundImage,
           },
         ],
       };
@@ -361,92 +408,116 @@ const rootReducer = (
         },
       };
     case ADD_NEW_BACKGROUND:
-      const withNewBg = state.currentPreset.blocks.slice(0);
+      let withNewBg = state.currentPreset.blocks.slice(0);
+      withNewBg = withNewBg.map((b) => {
+        const block = b;
+        if (block.id === action.payload.idBlock) {
+          block.backgrounds = [
+            {
+              id: -1,
+              type: "gradient",
+              backgroundImage: 0,
+              backgroundSize: "cover",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center center",
+            },
+            ...block.backgrounds?.map((b, i) => {
+              const bg = b;
+              bg.id = bg.id + 1;
+              return bg;
+            }),
+          ];
+        }
+        return block;
+      });
+      withNewBg = withNewBg.map((b, i) => {
+        const bg = b;
+        bg.id = i;
+        return bg;
+      });
       return {
         ...state,
         currentPreset: {
           ...state.currentPreset,
-          blocks: withNewBg.map((b) => {
-            const block = b;
-            if (block.id === action.payload.idBlock) {
-              block.backgrounds = [
-                {
-                  id: 1,
-                  type: "gradient",
-                  backgroundImage: 0,
-                  backgroundSize: "cover",
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition: "center center",
-                },
-                ...block.backgrounds?.map((b, i) => {
-                  const bg = b;
-                  bg.id = bg.id + 1;
-                  return bg;
-                }),
-              ];
-            }
-            return block;
-          }),
+          blocks: withNewBg,
         },
       };
     case ADD_TEXT_BLOCK:
-      const withNewTextBlock = state.currentPreset.blocks.slice(0);
+      let withNewTextBlock = state.currentPreset.blocks.slice(0);
+      withNewTextBlock = [
+        {
+          id: 1,
+          type: "text",
+          text: "",
+          color: "rgba(255, 255, 255, 1)",
+          fontSize: "5rem",
+          fontWeight: "normal",
+          fontStyle: "normal",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          textAlign: "center",
+        },
+        ...withNewTextBlock.map((b) => {
+          const block = b;
+          block.id = block.id + 1;
+          return block;
+        }),
+      ];
+      withNewTextBlock = withNewTextBlock.map((b, i) => {
+        const bl = b;
+        bl.id = i;
+        return bl;
+      });
       return {
         ...state,
         currentPreset: {
           ...state.currentPreset,
-          blocks: [
-            {
-              id: 1,
-              type: "text",
-              text: "",
-              color: "rgba(255, 255, 255, 1)",
-              fontSize: "5rem",
-              fontWeight: "normal",
-              fontStyle: "normal",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              textAlign: "center",
-            },
-            ...withNewTextBlock.map((b) => {
-              const block = b;
-              block.id = block.id + 1;
-              return block;
-            }),
-          ],
+          blocks: withNewTextBlock,
         },
       };
     case ADD_BACKGROUND_BLOCK:
-      const withNewBgBlock = state.currentPreset.blocks.slice(0);
+      let withNewBgBlock = state.currentPreset.blocks.slice(0);
+      withNewBgBlock = [
+        {
+          id: 1,
+          type: "background",
+          backgrounds: [],
+          blendMode: "normal",
+        },
+        ...withNewBgBlock.map((b) => {
+          const block = b;
+          block.id = block.id + 1;
+          return block;
+        }),
+      ];
+      withNewBgBlock = withNewBgBlock.map((b, i) => {
+        const bl = b;
+        bl.id = i;
+        return bl;
+      });
       return {
         ...state,
         currentPreset: {
           ...state.currentPreset,
-          blocks: [
-            {
-              id: 1,
-              type: "background",
-              backgrounds: [],
-              blendMode: "normal",
-            },
-            ...withNewBgBlock.map((b) => {
-              const block = b;
-              block.id = block.id + 1;
-              return block;
-            }),
-          ],
+          blocks: withNewBgBlock,
         },
       };
     case DELETE_BLOCK:
-      const withDeleteBlock = state.currentPreset.blocks.slice(0);
+      let withDeleteBlock = state.currentPreset.blocks.slice(0);
+      withDeleteBlock = withDeleteBlock.filter(
+        (b) => b.id !== action.payload.idBlock
+      );
+      withDeleteBlock = withDeleteBlock.map((b, i) => {
+        const bl = b;
+        bl.id = i;
+        return bl;
+      });
       return {
         ...state,
         currentPreset: {
           ...state.currentPreset,
-          blocks: withDeleteBlock.filter(
-            (b) => b.id !== action.payload.idBlock
-          ),
+          blocks: withDeleteBlock,
         },
       };
     case DELETE_BACKGROUND:
@@ -461,10 +532,69 @@ const rootReducer = (
               block.backgrounds = block.backgrounds!.filter(
                 (b) => b.id !== action.payload.idBG
               );
+              block.backgrounds = block.backgrounds.map((b, i) => {
+                const bg = b;
+                bg.id = i;
+                return bg;
+              });
             }
             return block;
           }),
         },
+      };
+    case MOVE_BLOCK:
+      let withSwappedBlock = state.currentPreset.blocks.slice(0);
+      const temp =
+        withSwappedBlock[action.payload.idBlock + action.payload.direction];
+      withSwappedBlock[action.payload.idBlock + action.payload.direction] =
+        withSwappedBlock[action.payload.idBlock];
+      withSwappedBlock[action.payload.idBlock] = temp;
+      console.log(withSwappedBlock);
+      withSwappedBlock = withSwappedBlock.map((b, i) => {
+        const bl = b;
+        bl.id = i;
+        return bl;
+      });
+      return {
+        ...state,
+        currentPreset: {
+          ...state.currentPreset,
+          blocks: withSwappedBlock,
+        },
+      };
+
+    case MOVE_BACKGROUND:
+      let withSwappedBgBlock = state.currentPreset.blocks.slice(0);
+      withSwappedBgBlock = withSwappedBgBlock.map((b) => {
+        const bl = b;
+        if (b.id === action.payload.idBlock) {
+          const temp = bl.backgrounds![action.payload.idBG];
+          bl.backgrounds![action.payload.idBG] = bl.backgrounds![
+            action.payload.idBG + action.payload.direction
+          ];
+          bl.backgrounds![
+            action.payload.idBG + action.payload.direction
+          ] = temp;
+
+          bl.backgrounds = bl.backgrounds!.map((b, i) => {
+            const bg = b;
+            bg.id = i;
+            return bg;
+          });
+        }
+        return bl;
+      });
+      return {
+        ...state,
+        currentPreset: {
+          ...state.currentPreset,
+          blocks: withSwappedBgBlock,
+        },
+      };
+    case ACTIVATE_PRESET:
+      return {
+        ...state,
+        currentPreset: state.presets[action.payload.idPreset],
       };
     default:
       return state;
