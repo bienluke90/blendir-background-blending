@@ -1,10 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Container from "../../templates/Container";
 import theme from "../../theme/theme";
 import styled from "styled-components";
 import Button from "../elements/Button";
 import { connect } from "react-redux";
-import { activatePreset as activatePresetAction } from "../../actions";
+import {
+  activatePreset as activatePresetAction,
+  removePreset as removePresetAction,
+} from "../../actions";
+import ModalRemove from "./ModalRemove";
+import { handleScrollBlock } from "../../utils";
+import ModalAddPreset from "./ModalAddPreset";
 
 const PresetsContainer = styled.div<PresetsContainerProps>`
   position: absolute;
@@ -31,7 +37,7 @@ const Header = styled.div`
   margin-bottom: 15px;
   padding: 0;
   h1 {
-    font-size: 250%;
+    font-size: 300%;
   }
   .button {
     margin-top: 10px;
@@ -78,6 +84,7 @@ interface PresetsProps {
   currentPreset: Preset;
   presets: Preset[];
   activatePreset: (idPreset: number) => void;
+  removePreset: (name: number) => void;
 }
 
 const Presets: React.FC<PresetsProps> = ({
@@ -86,6 +93,7 @@ const Presets: React.FC<PresetsProps> = ({
   currentPreset,
   presets,
   activatePreset,
+  removePreset,
 }) => {
   useEffect(() => {
     const element = document.getElementById("presets-container");
@@ -101,25 +109,68 @@ const Presets: React.FC<PresetsProps> = ({
     };
   });
 
+  const [modalRemove, setModalRemove] = useState<number>(-1);
+  const [modalAddPreset, setModalAddPreset] = useState<boolean>(false);
+
+  let isSingle = false;
+
+  if (presets.length === 1) {
+    isSingle = true;
+  }
+
   const presetElements = presets.map((p) => (
     <PresetCard>
+      {modalRemove >= 0 && (
+        <ModalRemove
+          title={"Are you sure?"}
+          subtitle={`You are about to delete this preset named as: ${p.name}. Continue?`}
+          onYes={() => {
+            handleScrollBlock(false);
+            removePreset(modalRemove);
+            setModalRemove(-1);
+          }}
+          onNo={() => {
+            handleScrollBlock(false);
+            setModalRemove(-1);
+          }}
+        />
+      )}
       <h3>{p.name}</h3>
       <Buttons>
         {currentPreset.id !== p.id && (
           <Button onClick={() => activatePreset(p.id)}>Activate</Button>
         )}
         {currentPreset.id === p.id && <Button confirm>Activated</Button>}
-        <Button danger>Remove</Button>
+        {!isSingle && (
+          <Button onClick={() => setModalRemove(p.id)} danger>
+            Remove
+          </Button>
+        )}
       </Buttons>
     </PresetCard>
   ));
+
   return (
     <PresetsContainer id="presets-container" active={active}>
+      {modalAddPreset && (
+        <ModalAddPreset
+          onAdd={() => {
+            handleScrollBlock(false);
+            setModalAddPreset(false);
+          }}
+          onCancel={() => {
+            handleScrollBlock(false);
+            setModalAddPreset(false);
+          }}
+        />
+      )}
       <Container>
         <Header>
           <h1>Presets</h1>
           <Subheader>Add new preset:</Subheader>
-          <Button inverted>Add new</Button>
+          <Button inverted onClick={() => setModalAddPreset(true)}>
+            Add new
+          </Button>
         </Header>
         <Card>
           <h2>All presets: </h2>
@@ -140,6 +191,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => ({
   activatePreset: (idPreset) => dispatch(activatePresetAction(idPreset)),
+  removePreset: (idPreset) => dispatch(removePresetAction(idPreset)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Presets);

@@ -23,7 +23,7 @@ interface InputProps {
   id?: string;
   value?: any;
   type?: string;
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void | Function;
   accept?: string;
   hidden?: boolean;
 }

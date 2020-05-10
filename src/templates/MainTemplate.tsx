@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Playground from "../components/blocks/Playground";
 import Presets from "../components/blocks/Presets";
 import BlockTree from "../components/blocks/BlockTree";
+import SeeCode from "../components/blocks/SeeCode";
 
 const TemplateContainer = styled.div`
   position: absolute;
@@ -24,6 +25,7 @@ const MainTemplate: React.FC<MainTemplateProps> = ({ panel, showPanel }) => {
       <Playground />
       <Presets showPanel={showPanel} active={panel === "presets"} />
       <BlockTree showPanel={showPanel} active={panel === "blocks"} />
+      <SeeCode showPanel={showPanel} active={panel === "seeCode"} />
     </TemplateContainer>
   );
 };

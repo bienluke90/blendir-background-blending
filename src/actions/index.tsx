@@ -16,6 +16,8 @@ export const DELETE_BACKGROUND = "DELETE_BACKGROUND";
 export const MOVE_BLOCK = "MOVE_BLOCK";
 export const MOVE_BACKGROUND = "MOVE_BACKGROUND";
 export const ACTIVATE_PRESET = "ACTIVATE_PRESET";
+export const REMOVE_PRESET = "REMOVE_PRESET";
+export const ADD_PRESET = "ADD_PRESET";
 
 export const changeBackgroundType = (
   idBlock: number,
@@ -192,6 +194,24 @@ export const activatePreset = (idPreset) => {
     type: ACTIVATE_PRESET,
     payload: {
       idPreset,
+    },
+  };
+};
+
+export const removePreset = (idPreset) => {
+  return {
+    type: REMOVE_PRESET,
+    payload: {
+      idPreset,
+    },
+  };
+};
+
+export const addPreset = (name) => {
+  return {
+    type: ADD_PRESET,
+    payload: {
+      name,
     },
   };
 };

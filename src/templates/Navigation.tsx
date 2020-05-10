@@ -203,7 +203,7 @@ const Navigation: React.FC<NavigationProps> = ({ panel, showPanel }) => {
               inverted
               onClick={() => {
                 handleNav(false);
-                showPanel("see-code");
+                showPanel("seeCode");
               }}
               info
             >

@@ -17,6 +17,8 @@ import {
   MOVE_BLOCK,
   MOVE_BACKGROUND,
   ACTIVATE_PRESET,
+  REMOVE_PRESET,
+  ADD_PRESET,
 } from "./../actions/index";
 
 const gradients = [
@@ -595,6 +597,52 @@ const rootReducer = (
       return {
         ...state,
         currentPreset: state.presets[action.payload.idPreset],
+      };
+    case REMOVE_PRESET:
+      let withRemovedPreset = state.presets
+        .slice(0)
+        .filter((p) => p.id !== action.payload.idPreset);
+      withRemovedPreset = withRemovedPreset.map((p, i) => {
+        const pr = p;
+        p.id = i;
+        return pr;
+      });
+      return {
+        ...state,
+        presets: withRemovedPreset,
+        currentPreset: withRemovedPreset[0],
+      };
+    case ADD_PRESET:
+      let withAddedPreset = state.presets.slice(0);
+      let presetToAdd = {
+        id: -1,
+        name: action.payload.name,
+        blocks: [
+          {
+            id: 2,
+            type: "text",
+            text: action.payload.name,
+            color: "rgba(0, 0, 0, 1)",
+            fontSize: "5rem",
+            fontWeight: "bold",
+            fontStyle: "normal",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            textAlign: "center",
+          },
+        ],
+      };
+      withAddedPreset = [presetToAdd, ...withAddedPreset];
+      withAddedPreset = withAddedPreset.map((p, i) => {
+        const pr = p;
+        pr.id = i;
+        return pr;
+      });
+      return {
+        ...state,
+        presets: withAddedPreset,
+        currentPreset: withAddedPreset[0],
       };
     default:
       return state;
