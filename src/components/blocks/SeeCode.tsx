@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import theme from "../../theme/theme";
 import Container from "../../templates/Container";
@@ -75,6 +75,26 @@ const SeeCode: React.FC<SeeCodeProps> = ({
   currentPreset,
   gradients,
 }) => {
+  useEffect(() => {
+    const element = document.getElementById("seeCode-container");
+    const listener = (e: Event) => {
+      if (element !== e.target) {
+        return;
+      }
+      showPanel("playground");
+    };
+    document.addEventListener("mousedown", listener);
+    return () => {
+      document.removeEventListener("mousedown", listener);
+    };
+  });
+  const codeHTML = currentPreset.blocks.map((bl) => {
+    return (
+      <p>{`\t<div id="block-${bl.type}-${bl.id}">${
+        bl.type === "text" ? bl.text : ""
+      }</div>\n`}</p>
+    );
+  });
   const codeCSS = currentPreset.blocks.map((bl) => {
     if (bl.type === "text") {
       return (
@@ -97,10 +117,9 @@ const SeeCode: React.FC<SeeCodeProps> = ({
       let bgImage = [],
         bgSize = [],
         bgPosition = [],
-        bgRepeat = [],
-        bgBlend;
+        bgRepeat = [];
 
-      let backgroundsCode = bl.backgrounds!.map((bg) => {
+      bl.backgrounds!.map((bg) => {
         let bgi;
         if (bg.type === "image") {
           bgi = bg.backgroundImage as string;
@@ -116,7 +135,7 @@ const SeeCode: React.FC<SeeCodeProps> = ({
 
       return (
         <p>
-          {`#block-background-${bl.id} {\n`}
+          {`#block-${bl.type}-${bl.id} {\n`}
           {`\tposition: absolute;\n`}
           {`\twidth: 100%;\n`}
           {`\theight: 100vh;\n`}
@@ -139,9 +158,21 @@ const SeeCode: React.FC<SeeCodeProps> = ({
           <p>You can see and copy code to your project</p>
         </Header>
         <Card>
-          <h2>Generated code from current preset:</h2>
-          <CodeCard id="code-card">{codeCSS}</CodeCard>
-          <Button>Copy</Button>
+          <h2>Generated HTML:</h2>
+          <CodeCard id="code-card">
+            {`<div id="block-container">`}
+            {codeHTML}
+            {`</div>`}
+          </CodeCard>
+          <h2>Generated CSS:</h2>
+          <CodeCard id="code-card">
+            {`#block-container {\n`}
+            {`\tfont-size: 62.5%;\n`}
+            {`\twidth: 100%;\n`}
+            {`\theight: 100vh;\n`}
+            {`}\n\n`}
+            {codeCSS}
+          </CodeCard>
         </Card>
       </Container>
     </SeeCodeContainer>

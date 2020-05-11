@@ -14,6 +14,7 @@ import {
   updateGradient as updateGradientAction,
   deleteBackground as deleteBackgroundAction,
   moveBackground as moveBackgroundAction,
+  changeUsed as changeUsedAction,
 } from "../../actions";
 import {
   BackgroundBlock,
@@ -98,6 +99,10 @@ interface BlockTreeGradientProps {
   gradients: Gradient[];
   blockId: number;
   currentPreset: Preset;
+  inUse: {
+    block: number;
+    background: number;
+  };
   changeBackgroundType: (idBlock: number, idBG: number, toType: string) => void;
   changeBackgroundOption: (
     idBlock: number,
@@ -112,6 +117,7 @@ interface BlockTreeGradientProps {
   updateGradient: (idGrad: number, value: string) => void;
   deleteBackground: (idBlock: number, idBG: number) => void;
   moveBackground: (idBlock: number, idBG: number, direction: number) => void;
+  changeUsed: (idBlock, idBG) => void;
 }
 
 const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
@@ -128,6 +134,8 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
   deleteBackground,
   currentPreset,
   moveBackground,
+  changeUsed,
+  inUse,
 }) => {
   const getGrad = () => {
     return gradients[b.backgroundImage].backgroundImage;
@@ -367,7 +375,9 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
       <BackgroundBlockHeader>
         <Header>Background</Header>
         <div>
-          <Button info>Use</Button>
+          <Button info onClick={() => changeUsed(bl, b.id)}>
+            {inUse.block === bl && inUse.background === b.id ? "In use" : "Use"}
+          </Button>
           {currentPreset.blocks[bl].backgrounds!.length - 1 !== b.id && (
             <Button onClick={() => moveBackground(bl, b.id, 1)}>&#8650;</Button>
           )}
@@ -491,6 +501,43 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
           >{`Y: ${b.backgroundPosition?.split(" ")[1]}`}</Button>
         </p>
         <p>
+          <small>Size: </small>{" "}
+          <Button
+            onClick={() =>
+              changeBackgroundOption(bl, b.id, "cover", "backgroundSize")
+            }
+            confirm={b.backgroundSize === "cover"}
+          >
+            Cover
+          </Button>
+          <Button
+            onClick={() =>
+              changeBackgroundOption(bl, b.id, "contain", "backgroundSize")
+            }
+            confirm={b.backgroundSize === "contain"}
+          >
+            Contain
+          </Button>
+          {b.backgroundSize !== "contain" && b.backgroundSize !== "cover" && (
+            <Button
+              confirm={
+                b.backgroundSize !== "contain" && b.backgroundSize !== "cover"
+              }
+            >
+              X: {b.backgroundSize?.split(" ")[0]}
+            </Button>
+          )}
+          {b.backgroundSize !== "contain" && b.backgroundSize !== "cover" && (
+            <Button
+              confirm={
+                b.backgroundSize !== "contain" && b.backgroundSize !== "cover"
+              }
+            >
+              Y: {b.backgroundSize?.split(" ")[1]}
+            </Button>
+          )}
+        </p>
+        <p>
           <small>Repeat: </small>
           <Button
             onClick={() =>
@@ -581,13 +628,15 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(deleteBackgroundAction(idBlock, idBG)),
   moveBackground: (idBlock, idBG, direction) =>
     dispatch(moveBackgroundAction(idBlock, idBG, direction)),
+  changeUsed: (idBlock, idBG) => dispatch(changeUsedAction(idBlock, idBG)),
 });
 
 const mapStateToProps = (state) => {
-  const { currentPreset, gradients } = state;
+  const { currentPreset, gradients, inUse } = state;
   return {
     currentPreset,
     gradients,
+    inUse,
   };
 };
 

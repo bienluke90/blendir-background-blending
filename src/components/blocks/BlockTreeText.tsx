@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Button from "../elements/Button";
 import { TopButtons, BackgroundBlock, Columns, Column } from "./BlockTree";
@@ -11,6 +11,7 @@ import {
   changeTextOption as changeTextOptionAction,
   deleteBlock as deleteBlockAction,
   moveBlock as moveBlockAction,
+  changeUsed as changeUsedAction,
 } from "../../actions";
 import { rgba } from "polished";
 import ModalRemove from "./ModalRemove";
@@ -41,6 +42,9 @@ const TreeBlockHeader = styled.div`
 `;
 
 const TreeBlockContent = styled.div`
+  .button {
+    font-size: 80% !important;
+  }
   color: ${theme.colors.textInverted};
 `;
 
@@ -58,16 +62,23 @@ interface BlockTreeTextProps {
   changeTextOption: (idBlock: number, value: string, type: string) => void;
   deleteBlock: (idBlock: number) => void;
   moveBlock: (idBlock: number, direction: number) => void;
+  changeUsed: (idBlock, idBG?) => void;
+  inUse: {
+    block: number;
+    background: number;
+  };
 }
 
 const BlockTreeText: React.FC<BlockTreeTextProps> = ({
+  currentPreset,
   type,
   content,
   block: b,
+  inUse,
   changeTextOption,
   deleteBlock,
   moveBlock,
-  currentPreset,
+  changeUsed,
 }) => {
   const [text, changeText] = useState<string>(content);
   const [fontSize, changeFontSize] = useState<number>(
@@ -90,6 +101,12 @@ const BlockTreeText: React.FC<BlockTreeTextProps> = ({
     changeTextOption(b.id, rgba(colors.color, colors.alpha / 100), "color");
   };
 
+  useEffect(() => {
+    xPosChange(+b.left!.replace("%", ""));
+    yPosChange(+b.top!.replace("%", ""));
+    changeFontSize(+b.fontSize?.replace("rem", "")! * 10);
+  }, [b.fontSize, b.left, b.top]);
+
   return (
     <TreeBlock>
       {modalRemove && (
@@ -110,7 +127,9 @@ const BlockTreeText: React.FC<BlockTreeTextProps> = ({
       <TreeBlockHeader>
         <h3>{type}</h3>
         <TopButtons>
-          <Button info>Use</Button>
+          <Button info onClick={() => changeUsed(b.id, -1)}>
+            {inUse.block === b.id ? "In use" : "Use"}
+          </Button>
           {currentPreset.blocks.length - 1 !== b.id && (
             <Button onClick={() => moveBlock(b.id, 1)}>&#8650;</Button>
           )}
@@ -246,6 +265,14 @@ const mapDispatchToProps = (dispatch) => ({
   deleteBlock: (idBlock) => dispatch(deleteBlockAction(idBlock)),
   moveBlock: (idBlock, direction) =>
     dispatch(moveBlockAction(idBlock, direction)),
+  changeUsed: (idBlock, idBG) => dispatch(changeUsedAction(idBlock, idBG)),
 });
 
-export default connect(null, mapDispatchToProps)(BlockTreeText);
+const mapStateToProps = (state) => {
+  const { inUse } = state;
+  return {
+    inUse,
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(BlockTreeText);

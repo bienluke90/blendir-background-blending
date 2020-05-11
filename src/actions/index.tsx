@@ -18,6 +18,9 @@ export const MOVE_BACKGROUND = "MOVE_BACKGROUND";
 export const ACTIVATE_PRESET = "ACTIVATE_PRESET";
 export const REMOVE_PRESET = "REMOVE_PRESET";
 export const ADD_PRESET = "ADD_PRESET";
+export const CHANGE_USED = "CHANGE_USED";
+export const CHANGE_POSITION = "CHANGE_POSITION";
+export const CHANGE_SIZE = "CHANGE_SIZE";
 
 export const changeBackgroundType = (
   idBlock: number,
@@ -212,6 +215,38 @@ export const addPreset = (name) => {
     type: ADD_PRESET,
     payload: {
       name,
+    },
+  };
+};
+
+export const changeUsed = (idBlock, idBG) => {
+  return {
+    type: CHANGE_USED,
+    payload: {
+      idBlock,
+      idBG,
+    },
+  };
+};
+
+export const changePosition = (idBlock, idBG, value) => {
+  return {
+    type: CHANGE_POSITION,
+    payload: {
+      idBlock,
+      idBG,
+      value,
+    },
+  };
+};
+
+export const changeSize = (idBlock, idBG, value) => {
+  return {
+    type: CHANGE_SIZE,
+    payload: {
+      idBlock,
+      idBG,
+      value,
     },
   };
 };

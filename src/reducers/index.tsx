@@ -19,6 +19,9 @@ import {
   ACTIVATE_PRESET,
   REMOVE_PRESET,
   ADD_PRESET,
+  CHANGE_USED,
+  CHANGE_POSITION,
+  CHANGE_SIZE,
 } from "./../actions/index";
 
 const gradients = [
@@ -183,12 +186,20 @@ const initialState = {
   presets: [preset1, preset2],
   currentPreset: preset1,
   gradients,
+  inUse: {
+    block: -1,
+    background: -1,
+  },
 };
 
 interface reducerStateProps {
   presets: Preset[];
   currentPreset: Preset;
   gradients: Gradient[];
+  inUse: {
+    block: number;
+    background: number;
+  };
 }
 
 interface actionProps {
@@ -423,19 +434,15 @@ const rootReducer = (
               backgroundRepeat: "no-repeat",
               backgroundPosition: "center center",
             },
-            ...block.backgrounds?.map((b, i) => {
-              const bg = b;
-              bg.id = bg.id + 1;
-              return bg;
-            }),
+            ...block.backgrounds,
           ];
+          block.backgrounds = block.backgrounds?.map((b, i) => {
+            const bg = b;
+            bg.id = bg.id + 1;
+            return bg;
+          });
         }
         return block;
-      });
-      withNewBg = withNewBg.map((b, i) => {
-        const bg = b;
-        bg.id = i;
-        return bg;
       });
       return {
         ...state,
@@ -460,11 +467,7 @@ const rootReducer = (
           transform: "translate(-50%, -50%)",
           textAlign: "center",
         },
-        ...withNewTextBlock.map((b) => {
-          const block = b;
-          block.id = block.id + 1;
-          return block;
-        }),
+        ...withNewTextBlock,
       ];
       withNewTextBlock = withNewTextBlock.map((b, i) => {
         const bl = b;
@@ -487,11 +490,7 @@ const rootReducer = (
           backgrounds: [],
           blendMode: "normal",
         },
-        ...withNewBgBlock.map((b) => {
-          const block = b;
-          block.id = block.id + 1;
-          return block;
-        }),
+        ...withNewBgBlock,
       ];
       withNewBgBlock = withNewBgBlock.map((b, i) => {
         const bl = b;
@@ -551,7 +550,6 @@ const rootReducer = (
       withSwappedBlock[action.payload.idBlock + action.payload.direction] =
         withSwappedBlock[action.payload.idBlock];
       withSwappedBlock[action.payload.idBlock] = temp;
-      console.log(withSwappedBlock);
       withSwappedBlock = withSwappedBlock.map((b, i) => {
         const bl = b;
         bl.id = i;
@@ -643,6 +641,94 @@ const rootReducer = (
         ...state,
         presets: withAddedPreset,
         currentPreset: withAddedPreset[0],
+      };
+    case CHANGE_USED:
+      if (action.payload.idBG >= 0) {
+        return {
+          ...state,
+          inUse: {
+            block: action.payload.idBlock,
+            background: action.payload.idBG,
+          },
+        };
+      }
+      return {
+        ...state,
+        inUse: {
+          block: action.payload.idBlock,
+          background: -1,
+        },
+      };
+    case CHANGE_POSITION:
+      let withChangedPosition = state.currentPreset.blocks.slice(0);
+      if (state.inUse.background >= 0) {
+        withChangedPosition = withChangedPosition.map((b) => {
+          const bl = b;
+          if (bl.id === action.payload.idBlock) {
+            bl.backgrounds = bl.backgrounds!.map((b) => {
+              const bg = b;
+              if (bg.id === action.payload.idBG) {
+                let [left] = action.payload.value.split(" "),
+                  [, top] = action.payload.value.split(" ");
+                bg.backgroundPosition = `${left}% ${top}%`;
+              }
+              return bg;
+            });
+          }
+          return bl;
+        });
+      }
+      if (state.inUse.background < 0) {
+        withChangedPosition = withChangedPosition.map((b) => {
+          const bl = b;
+          if (bl.id === action.payload.idBlock) {
+            let [left] = action.payload.value.split(" "),
+              [, top] = action.payload.value.split(" ");
+            bl.left = `${left}%`;
+            bl.top = `${top}%`;
+          }
+          return bl;
+        });
+      }
+      return {
+        ...state,
+        currentPreset: {
+          ...state.currentPreset,
+          blocks: withChangedPosition,
+        },
+      };
+    case CHANGE_SIZE:
+      let withChangedSize = state.currentPreset.blocks.slice(0);
+      if (state.inUse.background >= 0) {
+        withChangedSize = withChangedSize.map((b) => {
+          const bl = b;
+          if (bl.id === action.payload.idBlock) {
+            bl.backgrounds = bl.backgrounds!.map((b) => {
+              const bg = b;
+              if (bg.id === action.payload.idBG) {
+                bg.backgroundSize = action.payload.value;
+              }
+              return bg;
+            });
+          }
+          return bl;
+        });
+      }
+      if (state.inUse.background < 0) {
+        withChangedSize = withChangedSize.map((b) => {
+          const bl = b;
+          if (bl.id === action.payload.idBlock) {
+            bl.fontSize = action.payload.value;
+          }
+          return bl;
+        });
+      }
+      return {
+        ...state,
+        currentPreset: {
+          ...state.currentPreset,
+          blocks: withChangedSize,
+        },
       };
     default:
       return state;
