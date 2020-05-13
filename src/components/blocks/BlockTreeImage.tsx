@@ -103,6 +103,7 @@ const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
           onYes={() => {
             handleScrollBlock(false);
             deleteBackground(bl, b.id);
+            changeUsed(-1, -1);
           }}
           onNo={() => {
             handleScrollBlock(false);
@@ -113,14 +114,40 @@ const BlockTreeImage: React.FC<BlockTreeImageProps> = ({
       <BackgroundBlockHeader>
         <Header>Background</Header>
         <div>
-          <Button info onClick={() => changeUsed(bl, b.id)}>
+          <Button
+            info
+            onClick={() => {
+              if (inUse.block === bl && inUse.background === b.id) {
+                changeUsed(-1, -1);
+                return;
+              }
+              changeUsed(bl, b.id);
+            }}
+          >
             {inUse.block === bl && inUse.background === b.id ? "In use" : "Use"}
           </Button>
           {currentPreset.blocks[bl].backgrounds!.length - 1 !== b.id && (
-            <Button onClick={() => moveBackground(bl, b.id, 1)}>&#8650;</Button>
+            <Button
+              onClick={() => {
+                if (inUse.block === bl && inUse.background === b.id) {
+                  console.log(true);
+                  changeUsed(bl, b.id + 1);
+                }
+                moveBackground(bl, b.id, 1);
+              }}
+            >
+              &#8650;
+            </Button>
           )}
           {b.id !== 0 && (
-            <Button onClick={() => moveBackground(bl, b.id, -1)}>
+            <Button
+              onClick={() => {
+                if (inUse.block === bl && inUse.background === b.id) {
+                  changeUsed(bl, b.id - 1);
+                }
+                moveBackground(bl, b.id, -1);
+              }}
+            >
               &#8648;
             </Button>
           )}

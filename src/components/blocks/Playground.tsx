@@ -5,6 +5,7 @@ import {
   changeSize as changeSizeAction,
   changePosition as changePositionAction,
 } from "../../actions";
+import { roundToTwo } from "../../utils";
 
 const PlaygroundContainer = styled.div`
   position: relative;
@@ -46,36 +47,60 @@ const Playground: React.FC<PlaygroundProps> = ({
       return;
     }
 
-    const bgPos = currentPreset.blocks[inUse.block].backgrounds![
-      inUse.background
-    ].backgroundPosition!.split(" ");
+    let bgPos, bgPosValues, initialPos, bgSize, bgSizeValue;
 
-    const bgPosValues = {
-      x: +bgPos[0]
-        .replace("center", "50")
-        .replace("left", "50")
-        .replace("right", "50")
-        .replace("%", ""),
-      y: +bgPos[1]
-        .replace("center", "50")
-        .replace("top", "50")
-        .replace("bottom", "50")
-        .replace("%", ""),
-    };
+    if (inUse.background >= 0) {
+      bgPos = currentPreset.blocks[inUse.block].backgrounds![
+        inUse.background
+      ].backgroundPosition!.split(" ");
+      bgSize = currentPreset.blocks[inUse.block].backgrounds![inUse.background]
+        .backgroundSize!;
 
-    let bgSize = currentPreset.blocks[inUse.block].backgrounds![
-      inUse.background
-    ].backgroundSize!;
+      if (bgSize === "cover" || bgSize === "contain") {
+        bgSize = "100%";
+      }
 
-    if (bgSize === "cover" || bgSize === "contain") {
-      bgSize = "100 100";
+      bgSizeValue = +bgSize.replace("%", "").split(" ")[0];
+
+      const container = document.getElementById("playground-container")!;
+
+      bgPosValues = {
+        x: +bgPos[0]
+          .replace(
+            "center",
+            container.getBoundingClientRect().width / 2 -
+              (bgSizeValue * container.getBoundingClientRect().width) / 200
+          )
+          .replace("left", 0)
+          .replace(
+            "right",
+            container.getBoundingClientRect().width -
+              (bgSizeValue * container.getBoundingClientRect().width) / 200
+          )
+          .replace("px", ""),
+        y: +bgPos[1]
+          .replace(
+            "center",
+            container.getBoundingClientRect().height / 2 -
+              (bgSizeValue * container.getBoundingClientRect().height) / 200
+          )
+          .replace("top", 0)
+          .replace(
+            "bottom",
+            container.getBoundingClientRect().height -
+              (bgSizeValue * container.getBoundingClientRect().width) / 200
+          )
+          .replace("px", ""),
+      };
+
+      initialPos = {
+        x: e.pageX,
+        y: e.pageY,
+      };
     }
 
-    const bgSizeValue = +bgSize.replace("%", "").split(" ")[0];
-
     const updatePosition = (e) => {
-      const container = document.getElementById("root")!;
-
+      const container = document.getElementById("playground-container")!;
       if (inUse.background >= 0) {
         const afterValues = {
           x: e.pageX,
@@ -85,9 +110,9 @@ const Playground: React.FC<PlaygroundProps> = ({
         changePosition(
           inUse.block,
           inUse.background,
-          `${(afterValues.x * 100) / container.getBoundingClientRect().width} ${
-            (afterValues.y * 100) / container.getBoundingClientRect().height
-          }`
+          `${roundToTwo(
+            bgPosValues.x + afterValues.x - initialPos.x
+          )} ${roundToTwo(bgPosValues.y + afterValues.y - initialPos.y)}`
         );
         return;
       }
@@ -95,9 +120,7 @@ const Playground: React.FC<PlaygroundProps> = ({
       changePosition(
         inUse.block,
         null,
-        `${(e.pageX * 100) / container.getBoundingClientRect().width} ${
-          (e.pageY * 100) / container.getBoundingClientRect().height
-        }`
+        `${roundToTwo(e.pageX)} ${roundToTwo(e.pageY)}`
       );
     };
 
@@ -112,6 +135,9 @@ const Playground: React.FC<PlaygroundProps> = ({
     if (inUse.block < 0) {
       return;
     }
+
+    let bgPos, bgPosValues, bgSize, bgSizeValue;
+
     if (inUse.background < 0) {
       let currentSize = currentPreset.blocks[inUse.block].fontSize!.replace(
         "rem",
@@ -121,17 +147,77 @@ const Playground: React.FC<PlaygroundProps> = ({
       return;
     }
 
+    bgPos = currentPreset.blocks[inUse.block].backgrounds![
+      inUse.background
+    ].backgroundPosition!.split(" ");
+    bgSize = currentPreset.blocks[inUse.block].backgrounds![inUse.background]
+      .backgroundSize!;
+
+    if (bgSize === "cover" || bgSize === "contain") {
+      bgSize = `100%`;
+    }
+
+    bgSizeValue = +bgSize.replace("%", "").split(" ")[0];
+
+    const container = document.getElementById("playground-container")!;
+
+    bgPosValues = {
+      x: +bgPos[0]
+        .replace(
+          "center",
+          container.getBoundingClientRect().width / 2 -
+            (bgSizeValue * container.getBoundingClientRect().width) / 200
+        )
+        .replace("left", 0)
+        .replace(
+          "right",
+          container.getBoundingClientRect().width -
+            (bgSizeValue * container.getBoundingClientRect().width) / 200
+        )
+        .replace("px", ""),
+      y: +bgPos[1]
+        .replace(
+          "center",
+          container.getBoundingClientRect().height / 2 -
+            (bgSizeValue * container.getBoundingClientRect().height) / 200
+        )
+        .replace("top", 0)
+        .replace(
+          "bottom",
+          container.getBoundingClientRect().height -
+            (bgSizeValue * container.getBoundingClientRect().width) / 200
+        )
+        .replace("px", ""),
+    };
+
     let currentSize = currentPreset.blocks[inUse.block].backgrounds![
       inUse.background
     ].backgroundSize;
+
     currentSize =
       currentSize === "cover" || currentSize === "contain"
-        ? "100% 100%"
+        ? "100%"
         : currentSize;
-    const sizeTo = `${
-      +currentSize!.split(" ")[0].replace("%", "") + e.deltaY
-    }%`;
-    changeSize(inUse.block, inUse.background, `${sizeTo} ${sizeTo}`);
+
+    let delta = e.deltaY > 3 || e.deltaY < -3 ? e.deltaY / 12 : e.deltaY;
+
+    const sizeTo = +currentSize!.split(" ")[0].replace("%", "") + delta;
+
+    if (+sizeTo >= 1) {
+      changeSize(inUse.block, inUse.background, `${sizeTo}% ${sizeTo}%`);
+
+      changePosition(
+        inUse.block,
+        inUse.background,
+        `${roundToTwo(
+          bgPosValues.x -
+            delta * container.getBoundingClientRect().width * 0.005
+        )} ${roundToTwo(
+          bgPosValues.y -
+            delta * container.getBoundingClientRect().height * 0.005
+        )}`
+      );
+    }
   };
 
   const blocks = currentPreset.blocks.map((b) => {

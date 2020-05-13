@@ -9,6 +9,7 @@ import {
   addNewBackground as addNewBackgroundAction,
   deleteBlock as deleteBlockAction,
   moveBlock as moveBlockAction,
+  changeUsed as changeUsedAction,
 } from "../../actions";
 import ModalRemove from "./ModalRemove";
 import { handleScrollBlock } from "../../utils";
@@ -65,11 +66,12 @@ interface BlockTreeBlockProps {
   content: ReactNode[];
   nr: number;
   blend: string;
+  currentPreset: Preset;
   selectBlendingMode: (idBlock: number, value: string) => void;
   addNewBackground: (idBlock: number) => void;
   deleteBlock: (idBlock: number) => void;
   moveBlock: (idBlock: number, direction: number) => void;
-  currentPreset: Preset;
+  changeUsed: (idBlock: number, idBG: number) => void;
 }
 
 const BlockTreeBlock: React.FC<BlockTreeBlockProps> = ({
@@ -77,11 +79,12 @@ const BlockTreeBlock: React.FC<BlockTreeBlockProps> = ({
   content,
   nr,
   blend,
+  currentPreset,
   selectBlendingMode,
   addNewBackground,
   deleteBlock,
   moveBlock,
-  currentPreset,
+  changeUsed,
 }) => {
   const [blendMode, changeBlendMode] = useState<string>(blend);
   const [modalRemove, setModalRemove] = useState<boolean>(false);
@@ -198,10 +201,24 @@ const BlockTreeBlock: React.FC<BlockTreeBlockProps> = ({
         <TopButtons>
           <Button onClick={() => addNewBackground(nr)}>&#x271A;</Button>
           {currentPreset.blocks.length - 1 !== nr && (
-            <Button onClick={() => moveBlock(nr, 1)}>&#8650;</Button>
+            <Button
+              onClick={() => {
+                moveBlock(nr, 1);
+                changeUsed(-1, -1);
+              }}
+            >
+              &#8650;
+            </Button>
           )}
           {nr !== 0 && (
-            <Button onClick={() => moveBlock(nr, -1)}>&#8648;</Button>
+            <Button
+              onClick={() => {
+                moveBlock(nr, -1);
+                changeUsed(-1, -1);
+              }}
+            >
+              &#8648;
+            </Button>
           )}
           <Button
             onClick={() => {
@@ -233,6 +250,7 @@ const mapDispatchToProps = (dispatch) => ({
   deleteBlock: (idBlock) => dispatch(deleteBlockAction(idBlock)),
   moveBlock: (idBlock, direction) =>
     dispatch(moveBlockAction(idBlock, direction)),
+  changeUsed: (idBlock, idBG) => dispatch(changeUsedAction(idBlock, idBG)),
 });
 
 export default connect(null, mapDispatchToProps)(BlockTreeBlock);

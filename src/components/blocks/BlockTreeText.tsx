@@ -117,6 +117,7 @@ const BlockTreeText: React.FC<BlockTreeTextProps> = ({
             handleScrollBlock(false);
             setModalRemove(false);
             deleteBlock(b.id);
+            changeUsed(-1, -1);
           }}
           onNo={() => {
             handleScrollBlock(false);
@@ -127,14 +128,41 @@ const BlockTreeText: React.FC<BlockTreeTextProps> = ({
       <TreeBlockHeader>
         <h3>{type}</h3>
         <TopButtons>
-          <Button info onClick={() => changeUsed(b.id, -1)}>
+          <Button
+            info
+            onClick={() => {
+              if (inUse.block === b.id) {
+                changeUsed(-1, -1);
+                return;
+              }
+              changeUsed(b.id, -1);
+            }}
+          >
             {inUse.block === b.id ? "In use" : "Use"}
           </Button>
           {currentPreset.blocks.length - 1 !== b.id && (
-            <Button onClick={() => moveBlock(b.id, 1)}>&#8650;</Button>
+            <Button
+              onClick={() => {
+                if (inUse.block === b.id) {
+                  changeUsed(b.id + 1, -1);
+                }
+                moveBlock(b.id, 1);
+              }}
+            >
+              &#8650;
+            </Button>
           )}
           {b.id !== 0 && (
-            <Button onClick={() => moveBlock(b.id, -1)}>&#8648;</Button>
+            <Button
+              onClick={() => {
+                if (inUse.block === b.id) {
+                  changeUsed(b.id - 1, -1);
+                }
+                moveBlock(b.id, -1);
+              }}
+            >
+              &#8648;
+            </Button>
           )}
           <Button onClick={() => setModalRemove(true)} danger>
             &#x2716;

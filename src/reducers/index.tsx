@@ -93,7 +93,7 @@ const preset1 = {
           id: 0,
           type: "image",
           backgroundImage: 'url("https://svgsilh.com/svg/1327960.svg")',
-          backgroundSize: "contain",
+          backgroundSize: "50%",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center center",
         },
@@ -103,7 +103,7 @@ const preset1 = {
           backgroundImage: 9,
           backgroundSize: "cover",
           backgroundRepeat: "repeat",
-          backgroundPosition: "50% 50%",
+          backgroundPosition: "center center",
         },
       ],
       blendMode: "overlay",
@@ -161,7 +161,7 @@ const preset2 = {
           backgroundImage: 0,
           backgroundSize: "cover",
           backgroundRepeat: "repeat",
-          backgroundPosition: "50% 50%",
+          backgroundPosition: "center center",
         },
       ],
       blendMode: "overlay",
@@ -426,21 +426,16 @@ const rootReducer = (
         const block = b;
         if (block.id === action.payload.idBlock) {
           block.backgrounds = [
+            ...block.backgrounds,
             {
-              id: -1,
+              id: block.backgrounds!.length,
               type: "gradient",
               backgroundImage: 0,
               backgroundSize: "cover",
               backgroundRepeat: "no-repeat",
               backgroundPosition: "center center",
             },
-            ...block.backgrounds,
           ];
-          block.backgrounds = block.backgrounds?.map((b, i) => {
-            const bg = b;
-            bg.id = bg.id + 1;
-            return bg;
-          });
         }
         return block;
       });
@@ -454,8 +449,9 @@ const rootReducer = (
     case ADD_TEXT_BLOCK:
       let withNewTextBlock = state.currentPreset.blocks.slice(0);
       withNewTextBlock = [
+        ...withNewTextBlock,
         {
-          id: 1,
+          id: withNewTextBlock.length,
           type: "text",
           text: "",
           color: "rgba(255, 255, 255, 1)",
@@ -467,13 +463,7 @@ const rootReducer = (
           transform: "translate(-50%, -50%)",
           textAlign: "center",
         },
-        ...withNewTextBlock,
       ];
-      withNewTextBlock = withNewTextBlock.map((b, i) => {
-        const bl = b;
-        bl.id = i;
-        return bl;
-      });
       return {
         ...state,
         currentPreset: {
@@ -484,19 +474,14 @@ const rootReducer = (
     case ADD_BACKGROUND_BLOCK:
       let withNewBgBlock = state.currentPreset.blocks.slice(0);
       withNewBgBlock = [
+        ...withNewBgBlock,
         {
-          id: 1,
+          id: withNewBgBlock.length,
           type: "background",
           backgrounds: [],
           blendMode: "normal",
         },
-        ...withNewBgBlock,
       ];
-      withNewBgBlock = withNewBgBlock.map((b, i) => {
-        const bl = b;
-        bl.id = i;
-        return bl;
-      });
       return {
         ...state,
         currentPreset: {
@@ -670,7 +655,7 @@ const rootReducer = (
               if (bg.id === action.payload.idBG) {
                 let [left] = action.payload.value.split(" "),
                   [, top] = action.payload.value.split(" ");
-                bg.backgroundPosition = `${left}% ${top}%`;
+                bg.backgroundPosition = `${left}px ${top}px`;
               }
               return bg;
             });
@@ -684,8 +669,8 @@ const rootReducer = (
           if (bl.id === action.payload.idBlock) {
             let [left] = action.payload.value.split(" "),
               [, top] = action.payload.value.split(" ");
-            bl.left = `${left}%`;
-            bl.top = `${top}%`;
+            bl.left = `${left}px`;
+            bl.top = `${top}px`;
           }
           return bl;
         });
