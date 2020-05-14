@@ -48,17 +48,17 @@ const gradients = [
   {
     id: 4,
     backgroundImage:
-      "linear-gradient(135deg, rgba(0,0,0,0.5) 12%, rgba(58,179,180,1) 50%, rgba(85,0,255,1) 86%)",
+      "linear-gradient(135deg, rgba(0,50,100,0.75) 12%, rgba(38,129,150,0.75) 50%, rgba(35,0,155,0.75) 86%)",
   },
   {
     id: 5,
     backgroundImage:
-      "linear-gradient(0deg, rgba(207,210,83,1) 0%, rgba(236,255,0,1) 34%, rgba(195,152,43,1) 67%, rgba(21,0,180,1) 86%)",
+      "linear-gradient(0deg, rgba(70,190,50,0.35) 0%, rgba(0,150,50,0.5) 34%, rgba(50,150,50,0.5) 67%, rgba(21,150,60,0.5) 86%)",
   },
   {
     id: 6,
     backgroundImage:
-      "linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(0,164,255,1) 47%, rgba(195,152,43,1) 50%, rgba(180,124,0,1) 100%)",
+      "linear-gradient(0deg, rgba(0,164,155,1) 0%, rgba(50,114,255,0.5) 47%, rgba(50,116,255,0.5) 50%, rgba(0,164,155,1) 100%)",
   },
   {
     id: 7,
@@ -73,17 +73,17 @@ const gradients = [
   {
     id: 9,
     backgroundImage:
-      "linear-gradient(90deg, rgba(34,193,95,1) 0%, rgba(150,253,145,1) 100%)",
+      "linear-gradient(90deg, rgba(34,193,95,1) 4%, rgba(150,253,145,1) 60%)",
   },
   {
     id: 10,
     backgroundImage:
-      "radial-gradient(circle, rgba(223,255,207,0.5) 0%, rgba(92,136,74,0.5) 100%)",
+      "radial-gradient(circle, rgba(223,255,207,0.5) 60%, rgba(92,136,74,0.5) 100%)",
   },
 ];
 const preset1 = {
   id: 0,
-  name: "ABC Solutions company",
+  name: "Logistics Solutions Company",
   blocks: [
     {
       id: 0,
@@ -92,21 +92,21 @@ const preset1 = {
         {
           id: 0,
           type: "image",
-          backgroundImage: 'url("https://svgsilh.com/svg/1327960.svg")',
-          backgroundSize: "50%",
+          backgroundImage: 'url("https://svgsilh.com/svg/37436-153116.svg")',
+          backgroundSize: "40% 40%",
           backgroundRepeat: "no-repeat",
-          backgroundPosition: "center center",
+          backgroundPosition: "center 100px",
         },
         {
           id: 1,
           type: "gradient",
-          backgroundImage: 9,
+          backgroundImage: 6,
           backgroundSize: "cover",
           backgroundRepeat: "repeat",
           backgroundPosition: "center center",
         },
       ],
-      blendMode: "overlay",
+      blendMode: "screen",
     },
     {
       id: 1,
@@ -114,11 +114,11 @@ const preset1 = {
       backgrounds: [
         {
           id: 0,
-          type: "gradient",
-          backgroundImage: 10,
-          backgroundSize: "cover",
-          backgroundRepeat: "repeat",
-          backgroundPosition: "center center",
+          type: "image",
+          backgroundImage: 'url("https://svgsilh.com/svg/23431-153116.svg")',
+          backgroundSize: "30% 30%",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center 150px",
         },
       ],
       blendMode: "normal",
@@ -126,12 +126,12 @@ const preset1 = {
     {
       id: 2,
       type: "text",
-      text: "Welcome to ABC Solutions",
-      color: "rgba(0, 40, 0, 0.66)",
+      text: "Logistics Solutions Company",
+      color: "rgba(50, 70, 70, 1)",
       fontSize: "7.5rem",
       fontWeight: "bold",
       fontStyle: "normal",
-      top: "50%",
+      top: "60%",
       left: "50%",
       transform: "translate(-50%, -50%)",
       textAlign: "center",
@@ -150,27 +150,35 @@ const preset2 = {
         {
           id: 0,
           type: "image",
-          backgroundImage: 'url("https://svgsilh.com/svg/1740459-03a9f4.svg")',
-          backgroundSize: "contain",
+          backgroundImage: 'url("https://svgsilh.com/svg/306458.svg")',
+          backgroundSize: "75% 75%",
           backgroundRepeat: "no-repeat",
-          backgroundPosition: "center center",
+          backgroundPosition: "left center",
         },
         {
           id: 1,
+          type: "image",
+          backgroundImage: 'url("https://svgsilh.com/svg/2535435.svg")',
+          backgroundSize: "25% 25%",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "right center",
+        },
+        {
+          id: 2,
           type: "gradient",
-          backgroundImage: 0,
+          backgroundImage: 4,
           backgroundSize: "cover",
           backgroundRepeat: "repeat",
           backgroundPosition: "center center",
         },
       ],
-      blendMode: "overlay",
+      blendMode: "screen",
     },
     {
       id: 2,
       type: "text",
       text: "Welcome to Wingify Airlines",
-      color: "rgba(235, 255, 255, 0.85)",
+      color: "rgba(235, 255, 255, 1)",
       fontSize: "7.5rem",
       fontWeight: "bold",
       fontStyle: "normal",
@@ -182,8 +190,106 @@ const preset2 = {
   ],
 };
 
+const preset3 = {
+  id: 2,
+  name: "Holidays in mountains",
+  blocks: [
+    {
+      id: 0,
+      type: "background",
+      backgrounds: [
+        {
+          id: 0,
+          type: "image",
+          backgroundImage: 'url("https://svgsilh.com/svg/3270710.svg")',
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center -100px",
+        },
+        {
+          id: 1,
+          type: "gradient",
+          backgroundImage: 5,
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center center",
+        },
+      ],
+      blendMode: "screen",
+    },
+    {
+      id: 1,
+      type: "background",
+      backgrounds: [
+        {
+          id: 1,
+          type: "image",
+          backgroundImage: 'url("https://svgsilh.com/svg/296649.svg")',
+          backgroundSize: "35% 35%",
+          backgroundRepeat: "repeat-x",
+          backgroundPosition: "0 bottom",
+        },
+        {
+          id: 2,
+          type: "image",
+          backgroundImage: 'url("https://svgsilh.com/svg/303395.svg")',
+          backgroundSize: "40% 40%",
+          backgroundRepeat: "repeat-x",
+          backgroundPosition: "0 bottom",
+        },
+        {
+          id: 3,
+          type: "image",
+          backgroundImage: 'url("https://svgsilh.com/svg/310072-153116.svg")',
+          backgroundSize: "50% 50%",
+          backgroundRepeat: "repeat-x",
+          backgroundPosition: "left bottom",
+        },
+        {
+          id: 4,
+          type: "image",
+          backgroundImage: 'url("https://svgsilh.com/svg/310072-153116.svg")',
+          backgroundSize: "50% 50%",
+          backgroundRepeat: "repeat-x",
+          backgroundPosition: "right bottom",
+        },
+        {
+          id: 5,
+          type: "image",
+          backgroundImage: 'url("https://svgsilh.com/svg/310072-153116.svg")',
+          backgroundSize: "50% 50%",
+          backgroundRepeat: "repeat-x",
+          backgroundPosition: "center bottom",
+        },
+        {
+          id: 6,
+          type: "gradient",
+          backgroundImage: 5,
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center center",
+        },
+      ],
+      blendMode: "normal",
+    },
+    {
+      id: 2,
+      type: "text",
+      text: "Holidays in mountains",
+      color: "rgba(0, 235, 0, 1)",
+      fontSize: "7.5rem",
+      fontWeight: "bold",
+      fontStyle: "normal",
+      top: "45%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      textAlign: "center",
+    },
+  ],
+};
+
 const initialState = {
-  presets: [preset1, preset2],
+  presets: [preset1, preset2, preset3],
   currentPreset: preset1,
   gradients,
   inUse: {
@@ -231,7 +337,7 @@ const rootReducer = (
                   bg.backgroundImage = "";
                   bg.backgroundRepeat = "no-repeat";
                   bg.backgroundSize = "cover";
-                  bg.backgroundPosition = "50% 50%";
+                  bg.backgroundPosition = "center center";
                 }
                 if (
                   bg.id === action.payload.idBG &&
@@ -242,7 +348,7 @@ const rootReducer = (
                   bg.backgroundImage = 0;
                   bg.backgroundRepeat = "no-repeat";
                   bg.backgroundSize = "cover";
-                  bg.backgroundPosition = "50% 50%";
+                  bg.backgroundPosition = "center center";
                 }
                 return bg;
               });

@@ -3,7 +3,6 @@ import styled from "styled-components";
 import theme from "../../theme/theme";
 import Container from "../../templates/Container";
 import { connect } from "react-redux";
-import Button from "../elements/Button";
 
 const SeeCodeContainer = styled.div<SeeCodeContainerProps>`
   position: absolute;
@@ -90,7 +89,7 @@ const SeeCode: React.FC<SeeCodeProps> = ({
   });
   const codeHTML = currentPreset.blocks.map((bl) => {
     return (
-      <p>{`\t<div id="block-${bl.type}-${bl.id}">${
+      <p key={`bl-sch-${bl.id}`}>{`\t<div id="block-${bl.type}-${bl.id}">${
         bl.type === "text" ? bl.text : ""
       }</div>\n`}</p>
     );
@@ -98,7 +97,7 @@ const SeeCode: React.FC<SeeCodeProps> = ({
   const codeCSS = currentPreset.blocks.map((bl) => {
     if (bl.type === "text") {
       return (
-        <p>
+        <p key={`bl-scc-${bl.id}`}>
           {`#block-text-${bl.id} {\n`}
           {`\tposition: absolute;\n`}
           {`\tcolor: ${bl.color};\n`}
@@ -131,10 +130,11 @@ const SeeCode: React.FC<SeeCodeProps> = ({
         bgSize.push(bg.backgroundSize as never);
         bgPosition.push(bg.backgroundPosition as never);
         bgRepeat.push(bg.backgroundRepeat as never);
+        return null;
       });
 
       return (
-        <p>
+        <p key={`bl-sccb-${bl.id}`}>
           {`#block-${bl.type}-${bl.id} {\n`}
           {`\tposition: absolute;\n`}
           {`\twidth: 100%;\n`}
@@ -148,6 +148,7 @@ const SeeCode: React.FC<SeeCodeProps> = ({
         </p>
       );
     }
+    return null;
   });
 
   return (

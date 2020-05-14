@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import {
@@ -100,7 +100,6 @@ const Playground: React.FC<PlaygroundProps> = ({
     }
 
     const updatePosition = (e) => {
-      const container = document.getElementById("playground-container")!;
       if (inUse.background >= 0) {
         const afterValues = {
           x: e.pageX,

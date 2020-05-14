@@ -48,6 +48,10 @@ export const handleScrollBlock = (to) => {
 export const roundToTwo = (num) => {
   let value = `${(Math.round(num * 100) / 100).toFixed(2)}`;
   let [before, after] = value.split(".");
+
+  if (value.indexOf(".") < 0) {
+    return +`${before}`;
+  }
   if (after[1] === "0" && after[0] === "0") {
     return +`${before}`;
   }

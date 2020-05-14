@@ -13,7 +13,7 @@ import {
   moveBlock as moveBlockAction,
   changeUsed as changeUsedAction,
 } from "../../actions";
-import { rgba } from "polished";
+import { rgba, rgb, parseToRgb } from "polished";
 import ModalRemove from "./ModalRemove";
 import { handleScrollBlock } from "../../utils";
 
@@ -84,7 +84,9 @@ const BlockTreeText: React.FC<BlockTreeTextProps> = ({
   const [fontSize, changeFontSize] = useState<number>(
     +b.fontSize?.replace("rem", "")! * 10
   );
-  const [activeColor, changeActiveColor] = useState<string>(b.color!);
+  const [activeColor, changeActiveColor] = useState<string>(
+    rgb(parseToRgb(b.color!))
+  );
   const [activeAlpha, changeActiveAlpha] = useState<number>(
     +b
       .color!.replace(/rgba\(\s?\d+\s?,\s?\d+\s?,\s?\d+\s?,/, "")

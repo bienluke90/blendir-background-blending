@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import styled from "styled-components";
 import Button from "../elements/Button";
-import theme from "../../theme/theme";
 import Input from "../elements/Input";
 import { connect } from "react-redux";
 import { addPreset as addPresetAction } from "../../actions";

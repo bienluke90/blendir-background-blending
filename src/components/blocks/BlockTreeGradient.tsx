@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import styled from "styled-components";
 import theme from "../../theme/theme";
 import alpha from "../../assets/images/alpha.jpg";
-import { rgba } from "polished";
+import { rgba, rgb, parseToRgb } from "polished";
 import { connect } from "react-redux";
 import {
   changeBackgroundType as changeBackgroundTypeAction,
@@ -159,7 +159,9 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
 
   const [gradientDeg, gradientDegChange] = useState<number>(0);
   const [activePoint, changeActivePoint] = useState<number>(0);
-  const [activeColor, changeActiveColor] = useState<string>("#ffffff");
+  const [activeColor, changeActiveColor] = useState<string>(
+    rgb(parseToRgb(getParts()[0].color))
+  );
   const [activeAlpha, changeActiveAlpha] = useState<number>(100);
   const refLine = useRef<HTMLElement>(document.createElement("div"));
   const [modalRemove, setModalRemove] = useState<boolean>(false);
@@ -190,7 +192,7 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
     }
 
     changeActivePoint(pointNr);
-    changeActiveColor(getParts()[pointNr].color);
+    changeActiveColor(rgb(parseToRgb(getParts()[pointNr].color)));
     changeActiveAlpha(
       +getParts()
         [pointNr].color.replace(/rgba\(\s?\d+\s?,\s?\d+\s?,\s?\d+\s?,/, "")
@@ -287,7 +289,7 @@ const BlockTreeGradient: React.FC<BlockTreeGradientProps> = ({
     if (activePoint === null) {
       return;
     }
-    changeActiveColor(rgba(colors.color, colors.alpha / 100));
+    changeActiveColor(rgb(parseToRgb(colors.color)));
     changeActiveAlpha(colors.alpha);
     let parts = getParts().map((p) => {
       if (p.id !== activePoint) {

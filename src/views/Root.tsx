@@ -3,7 +3,8 @@ import styled from "styled-components";
 import Navigation from "../templates/Navigation";
 import MainTemplate from "../templates/MainTemplate";
 import { Provider } from "react-redux";
-import store from "../store";
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistor } from "../store";
 
 const MainContainer = styled.div`
   position: relative;
@@ -18,10 +19,12 @@ const Root: React.FC = () => {
 
   return (
     <Provider store={store}>
-      <MainContainer>
-        <Navigation panel={whatIsViewed} showPanel={whatToView} />
-        <MainTemplate panel={whatIsViewed} showPanel={whatToView} />
-      </MainContainer>
+      <PersistGate loading={null} persistor={persistor}>
+        <MainContainer>
+          <Navigation panel={whatIsViewed} showPanel={whatToView} />
+          <MainTemplate panel={whatIsViewed} showPanel={whatToView} />
+        </MainContainer>
+      </PersistGate>
     </Provider>
   );
 };

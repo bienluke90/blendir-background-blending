@@ -7,6 +7,7 @@ import { connect } from "react-redux";
 import {
   activatePreset as activatePresetAction,
   removePreset as removePresetAction,
+  changeUsed as changeUsedAction,
 } from "../../actions";
 import ModalRemove from "./ModalRemove";
 import { handleScrollBlock } from "../../utils";
@@ -85,6 +86,7 @@ interface PresetsProps {
   presets: Preset[];
   activatePreset: (idPreset: number) => void;
   removePreset: (name: number) => void;
+  changeUsed: (idBlock: number, idBG: number) => void;
 }
 
 const Presets: React.FC<PresetsProps> = ({
@@ -94,6 +96,7 @@ const Presets: React.FC<PresetsProps> = ({
   presets,
   activatePreset,
   removePreset,
+  changeUsed,
 }) => {
   useEffect(() => {
     const element = document.getElementById("presets-container");
@@ -119,7 +122,7 @@ const Presets: React.FC<PresetsProps> = ({
   }
 
   const presetElements = presets.map((p) => (
-    <PresetCard>
+    <PresetCard key={`pr-${p.id}`}>
       {modalRemove >= 0 && (
         <ModalRemove
           title={"Are you sure?"}
@@ -128,6 +131,7 @@ const Presets: React.FC<PresetsProps> = ({
             handleScrollBlock(false);
             removePreset(modalRemove);
             setModalRemove(-1);
+            changeUsed(-1, -1);
           }}
           onNo={() => {
             handleScrollBlock(false);
@@ -138,7 +142,14 @@ const Presets: React.FC<PresetsProps> = ({
       <h3>{p.name}</h3>
       <Buttons>
         {currentPreset.id !== p.id && (
-          <Button onClick={() => activatePreset(p.id)}>Activate</Button>
+          <Button
+            onClick={() => {
+              activatePreset(p.id);
+              changeUsed(-1, -1);
+            }}
+          >
+            Activate
+          </Button>
         )}
         {currentPreset.id === p.id && <Button confirm>Activated</Button>}
         {!isSingle && (
@@ -192,6 +203,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => ({
   activatePreset: (idPreset) => dispatch(activatePresetAction(idPreset)),
   removePreset: (idPreset) => dispatch(removePresetAction(idPreset)),
+  changeUsed: (idBlock, idBG) => dispatch(changeUsedAction(idBlock, idBG)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Presets);

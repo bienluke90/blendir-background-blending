@@ -120,79 +120,24 @@ const BlockTreeBlock: React.FC<BlockTreeBlockProps> = ({
                     changeBlendMode(e.target.value);
                     selectBlendingMode(nr, e.target.value);
                   }}
+                  value={blendMode}
                 >
-                  <option selected={blendMode === "normal"} value="normal ">
-                    Normal
-                  </option>
-                  <option selected={blendMode === "multiply"} value="multiply">
-                    Multiply
-                  </option>
-                  <option selected={blendMode === "screen"} value="screen">
-                    Screen
-                  </option>
-                  <option selected={blendMode === "overlay"} value="overlay">
-                    Overlay
-                  </option>
-                  <option selected={blendMode === "darken"} value="darken">
-                    Darken
-                  </option>
-                  <option selected={blendMode === "lighten"} value="lighten">
-                    Lighten
-                  </option>
-                  <option
-                    selected={blendMode === "color-dodge"}
-                    value="color-dodge"
-                  >
-                    Color Dodge
-                  </option>
-                  <option
-                    selected={blendMode === "color-burn"}
-                    value="color-burn"
-                  >
-                    Color Burn
-                  </option>
-                  <option
-                    selected={blendMode === "hard-light"}
-                    value="hard-light"
-                  >
-                    Hard Light
-                  </option>
-                  <option
-                    selected={blendMode === "soft-light"}
-                    value="soft-light"
-                  >
-                    Soft Light
-                  </option>
-                  <option
-                    selected={blendMode === "difference"}
-                    value="difference"
-                  >
-                    Difference
-                  </option>
-                  <option
-                    selected={blendMode === "exclusion"}
-                    value="exclusion"
-                  >
-                    Exclusion
-                  </option>
-                  <option selected={blendMode === "hue"} value="hue">
-                    Hue
-                  </option>
-                  <option
-                    selected={blendMode === "saturation"}
-                    value="saturation"
-                  >
-                    Saturation
-                  </option>
-                  <option
-                    selected={blendMode === "luminosity"}
-                    value="luminosity"
-                  >
-                    Luminosity
-                  </option>
-                  <option selected={blendMode === "color"} value="color">
-                    Color
-                  </option>
+                  <option value="normal ">Normal</option>
+                  <option value="multiply">Multiply</option>
+                  <option value="screen">Screen</option>
+                  <option value="overlay">Overlay</option>
+                  <option value="darken">Darken</option>
+                  <option value="lighten">Lighten</option>
+                  <option value="color-dodge">Color Dodge</option>
+                  <option value="color-burn">Color Burn</option>
+                  <option value="hard-light">Hard Light</option>
+                  <option value="soft-light">Soft Light</option>
+                  <option value="difference">Difference</option>
+                  <option value="exclusion">Exclusion</option>
+                  <option value="hue">Hue</option>
+                  <option value="saturation">Saturation</option>
+                  <option value="luminosity">Luminosity</option>
+                  <option value="color">Color</option>
                 </select>
               </label>
             </p>
